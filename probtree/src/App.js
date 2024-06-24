@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability, isAbsolute }) => {
   const [isNormalized, setIsNormalized] = useState(true);
+  const [inputValue, setInputValue] = useState(node.probability.toString());
+
+  useEffect(() => {
+    setInputValue(node.probability.toString());
+  }, [node.probability]);
 
   useEffect(() => {
     if (node.children) {
@@ -11,18 +15,24 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
   }, [node, isAbsolute]);
 
   const handleProbabilityChange = (e) => {
-    let newProb = parseFloat(e.target.value);
-    if (isAbsolute) {
-      newProb = Math.min(newProb, parentProbability);
-    } else {
-      newProb = Math.min(newProb, 100);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+
+    const newProb = parseFloat(newValue);
+    if (!isNaN(newProb)) {
+      let clampedProb;
+      if (isAbsolute) {
+        clampedProb = Math.min(newProb, parentProbability);
+      } else {
+        clampedProb = Math.min(newProb, 100);
+      }
+      onUpdate({ ...node, probability: clampedProb });
     }
-    onUpdate({ ...node, probability: newProb });
   };
 
   const displayProbability = isAbsolute 
     ? node.probability 
-    : level === 0 ? 100 : (node.probability / parentProbability) * 100;
+    : level === 0 ? 100 : node.probability;
 
   return (
     <div style={{ marginBottom: '10px', marginLeft: `${level * 20}px` }}>
@@ -38,11 +48,12 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         />
         <input
           type="number"
-          value={displayProbability.toFixed(2)}
+          value={inputValue}
           onChange={handleProbabilityChange}
+          onBlur={() => setInputValue(displayProbability.toFixed(2))}
           min="0"
           max={isAbsolute ? parentProbability : 100}
-          step="0.1"
+          step="any"
           style={{ width: '60px', marginRight: '5px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
         <span style={{ marginRight: '10px' }}>%</span>
@@ -263,7 +274,7 @@ const ProbabilityDistributionVisualizer = () => {
         return {
           ...node,
           probability: newProbability,
-          children: node.children.map(child => toggleAbsoluteRecursive(child, newProbability))
+          children: node.children.map(child => toggleAbsoluteRecursive(child, isAbsolute ? node.probability : newProbability))
         };
       }
       return { ...node, probability: newProbability };
