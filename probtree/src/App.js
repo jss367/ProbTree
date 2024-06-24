@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
 
-const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability }) => {
+const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability, isAbsolute }) => {
   const [isNormalized, setIsNormalized] = useState(true);
 
   useEffect(() => {
     if (node.children) {
       const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
-      setIsNormalized(Math.abs(sum - node.probability) < 0.01);
+      setIsNormalized(Math.abs(sum - (isAbsolute ? parentProbability : 100)) < 0.01);
     }
-  }, [node]);
+  }, [node, parentProbability, isAbsolute]);
 
   const handleProbabilityChange = (e) => {
-    onUpdate({ ...node, probability: parseFloat(e.target.value) });
+    let newProb = parseFloat(e.target.value);
+    if (isAbsolute) {
+      newProb = Math.min(newProb, parentProbability);
+    } else {
+      newProb = Math.min(newProb, 100);
+    }
+    onUpdate({ ...node, probability: newProb });
   };
 
-  const handleNameChange = (e) => {
-    onUpdate({ ...node, name: e.target.value });
-  };
+  const displayProbability = isAbsolute 
+    ? node.probability 
+    : (level === 0 ? 100 : (node.probability / parentProbability) * 100);
 
   return (
     <div style={{ marginBottom: '10px', marginLeft: `${level * 20}px` }}>
@@ -27,15 +33,15 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         <input
           type="text"
           value={node.name}
-          onChange={handleNameChange}
+          onChange={(e) => onUpdate({ ...node, name: e.target.value })}
           style={{ marginRight: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
         <input
           type="number"
-          value={node.probability}
+          value={displayProbability.toFixed(2)}
           onChange={handleProbabilityChange}
           min="0"
-          max={parentProbability || 100}
+          max={isAbsolute ? parentProbability : 100}
           step="0.1"
           style={{ width: '60px', marginRight: '5px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
@@ -50,7 +56,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
       </div>
       {node.children && !isNormalized && (
         <div style={{ color: 'red', marginTop: '5px' }}>
-          Warning: Child probabilities do not sum to {node.probability}%
+          Warning: Child probabilities do not sum to {isAbsolute ? parentProbability.toFixed(2) : '100'}%
         </div>
       )}
       {node.children && node.expanded && (
@@ -65,7 +71,8 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
               onToggle={onToggle}
               onNormalize={onNormalize}
               level={level + 1}
-              parentProbability={node.probability}
+              parentProbability={isAbsolute ? node.probability : parentProbability}
+              isAbsolute={isAbsolute}
             />
           ))}
         </div>
@@ -74,8 +81,10 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
   );
 };
 
-const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 0 }) => {
-  const actualProbability = (node.probability * cumulativeProbability) / 100;
+const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 0, isAbsolute }) => {
+  const actualProbability = isAbsolute 
+    ? node.probability
+    : (node.probability * cumulativeProbability) / 100;
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
   const bgColor = colors[depth % colors.length];
 
@@ -111,6 +120,7 @@ const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 
                 node={child}
                 cumulativeProbability={actualProbability}
                 depth={depth + 1}
+                isAbsolute={isAbsolute}
               />
             </div>
           ))}
@@ -121,6 +131,7 @@ const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 
 };
 
 const ProbabilityDistributionVisualizer = () => {
+  const [isAbsolute, setIsAbsolute] = useState(false);
   const [rootNode, setRootNode] = useState({
     id: 'root',
     name: 'Beliefs on the causes of an airplane crash',
@@ -225,7 +236,7 @@ const ProbabilityDistributionVisualizer = () => {
         const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
         const normalizedChildren = node.children.map(child => ({
           ...child,
-          probability: (child.probability / sum) * node.probability
+          probability: isAbsolute ? (child.probability / sum) * node.probability : (child.probability / sum) * 100
         }));
         return { ...node, children: normalizedChildren };
       }
@@ -244,6 +255,16 @@ const ProbabilityDistributionVisualizer = () => {
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Probability Distribution Visualizer</h1>
+      <div style={{ marginBottom: '20px' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={isAbsolute}
+            onChange={() => setIsAbsolute(!isAbsolute)}
+          />
+          Use Absolute Probabilities
+        </label>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Input</h2>
@@ -254,11 +275,13 @@ const ProbabilityDistributionVisualizer = () => {
             onRemove={removeNode}
             onToggle={toggleNode}
             onNormalize={normalizeNode}
+            parentProbability={100}
+            isAbsolute={isAbsolute}
           />
         </div>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
-          <HierarchicalVisualization node={rootNode} cumulativeProbability={100} />
+          <HierarchicalVisualization node={rootNode} cumulativeProbability={100} isAbsolute={isAbsolute} />
         </div>
       </div>
     </div>
