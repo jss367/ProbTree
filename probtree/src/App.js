@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TreeMap, ResponsiveContainer } from 'recharts';
+import { ResponsiveContainer, Treemap } from 'recharts';
 import { PlusCircle, MinusCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 }) => {
@@ -186,54 +186,57 @@ const ProbabilityDistributionVisualizer = () => {
         <div className="w-full md:w-1/2 pl-4">
           <h2 className="text-xl font-semibold mb-2">Visualization</h2>
           <ResponsiveContainer width="100%" height={400}>
-            <TreeMap
+            <Treemap
               data={treeMapData}
               dataKey="size"
               ratio={4 / 3}
               stroke="#fff"
               fill="#8884d8"
-              content={({ root, depth, x, y, width, height, index, payload, colors, rank, name }) => {
-                return (
-                  <g>
-                    <rect
-                      x={x}
-                      y={y}
-                      width={width}
-                      height={height}
-                      style={{
-                        fill: depth < 2 ? colors[Math.floor((index / root.children.length) * 6)] : 'none',
-                        stroke: '#fff',
-                        strokeWidth: 2 / (depth + 1e-10),
-                        strokeOpacity: 1 / (depth + 1e-10),
-                      }}
-                    />
-                    {depth === 1 && (
-                      <text
-                        x={x + width / 2}
-                        y={y + height / 2 + 7}
-                        textAnchor="middle"
-                        fill="#fff"
-                        fontSize={14}
-                      >
-                        {name}
-                      </text>
-                    )}
-                    {depth === 1 && (
-                      <text
-                        x={x + width / 2}
-                        y={y + height / 2 - 7}
-                        textAnchor="middle"
-                        fill="#fff"
-                        fontSize={16}
-                        fontWeight="bold"
-                      >
-                        {`${payload.size}%`}
-                      </text>
-                    )}
-                  </g>
-                );
-              }}
-            />
+            >
+              <Treemap
+                content={({ root, depth, x, y, width, height, index, payload, colors, rank, name }) => {
+                  return (
+                    <g>
+                      <rect
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        style={{
+                          fill: depth < 2 ? colors[Math.floor((index / root.children.length) * 6)] : 'none',
+                          stroke: '#fff',
+                          strokeWidth: 2 / (depth + 1e-10),
+                          strokeOpacity: 1 / (depth + 1e-10),
+                        }}
+                      />
+                      {depth === 1 && (
+                        <text
+                          x={x + width / 2}
+                          y={y + height / 2 + 7}
+                          textAnchor="middle"
+                          fill="#fff"
+                          fontSize={14}
+                        >
+                          {name}
+                        </text>
+                      )}
+                      {depth === 1 && (
+                        <text
+                          x={x + width / 2}
+                          y={y + height / 2 - 7}
+                          textAnchor="middle"
+                          fill="#fff"
+                          fontSize={16}
+                          fontWeight="bold"
+                        >
+                          {`${payload.size}%`}
+                        </text>
+                      )}
+                    </g>
+                  );
+                }}
+              />
+            </Treemap>
           </ResponsiveContainer>
         </div>
       </div>
