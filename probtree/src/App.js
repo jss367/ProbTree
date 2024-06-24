@@ -80,29 +80,42 @@ const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 
   const bgColor = colors[depth % colors.length];
 
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div style={{ marginBottom: '10px', width: '100%' }}>
       <div
         style={{
           backgroundColor: bgColor,
           color: 'white',
           padding: '10px',
           borderRadius: '4px',
-          width: `${actualProbability}%`,
-          marginLeft: `${depth * 20}px`,
+          width: '100%',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}
       >
         <div style={{ fontWeight: 'bold' }}>{node.name}</div>
         <div>{actualProbability.toFixed(2)}%</div>
       </div>
-      {node.children && node.children.map(child => (
-        <HierarchicalVisualization
-          key={child.id}
-          node={child}
-          cumulativeProbability={actualProbability}
-          depth={depth + 1}
-        />
-      ))}
+      {node.children && (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'row',
+          width: '100%',
+          marginTop: '5px'
+        }}>
+          {node.children.map(child => (
+            <div key={child.id} style={{ 
+              flex: child.probability,
+              paddingRight: '5px',
+              boxSizing: 'border-box'
+            }}>
+              <HierarchicalVisualization
+                node={child}
+                cumulativeProbability={actualProbability}
+                depth={depth + 1}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -120,9 +133,9 @@ const ProbabilityDistributionVisualizer = () => {
         probability: 25, 
         expanded: true,
         children: [
-          { id: '1-1', name: 'Engine failure', probability: 10, expanded: false },
-          { id: '1-2', name: 'Structural issue', probability: 10, expanded: false },
-          { id: '1-3', name: 'Electrical system', probability: 10, expanded: false },
+          { id: '1-1', name: 'Engine failure', probability: 40, expanded: false },
+          { id: '1-2', name: 'Structural issue', probability: 30, expanded: false },
+          { id: '1-3', name: 'Electrical system', probability: 30, expanded: false },
         ]
       },
       { id: '2', name: 'Pilot error', probability: 25, expanded: false },
@@ -245,7 +258,7 @@ const ProbabilityDistributionVisualizer = () => {
         </div>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
-          <HierarchicalVisualization node={rootNode} />
+          <HierarchicalVisualization node={rootNode} cumulativeProbability={100} />
         </div>
       </div>
     </div>
