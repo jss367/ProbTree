@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 }) => {
+const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability }) => {
+  const [isNormalized, setIsNormalized] = useState(true);
+
+  useEffect(() => {
+    if (node.children) {
+      const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
+      setIsNormalized(Math.abs(sum - node.probability) < 0.01);
+    }
+  }, [node]);
+
   const handleProbabilityChange = (e) => {
     onUpdate({ ...node, probability: parseFloat(e.target.value) });
   };
@@ -26,14 +35,24 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
           value={node.probability}
           onChange={handleProbabilityChange}
           min="0"
-          max="100"
+          max={parentProbability || 100}
           step="0.1"
           style={{ width: '60px', marginRight: '5px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
         <span style={{ marginRight: '10px' }}>%</span>
         <button onClick={() => onAdd(node.id)} style={{ marginRight: '5px' }}>+</button>
         {level > 0 && <button onClick={() => onRemove(node.id)}>-</button>}
+        {node.children && (
+          <button onClick={() => onNormalize(node.id)} style={{ marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
+            Normalize
+          </button>
+        )}
       </div>
+      {node.children && !isNormalized && (
+        <div style={{ color: 'red', marginTop: '5px' }}>
+          Warning: Child probabilities do not sum to {node.probability}%
+        </div>
+      )}
       {node.children && node.expanded && (
         <div>
           {node.children.map((child) => (
@@ -44,7 +63,9 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
               onAdd={onAdd}
               onRemove={onRemove}
               onToggle={onToggle}
+              onNormalize={onNormalize}
               level={level + 1}
+              parentProbability={node.probability}
             />
           ))}
         </div>
@@ -99,9 +120,9 @@ const ProbabilityDistributionVisualizer = () => {
         probability: 25, 
         expanded: true,
         children: [
-          { id: '1-1', name: 'Engine failure', probability: 40, expanded: false },
-          { id: '1-2', name: 'Structural issue', probability: 30, expanded: false },
-          { id: '1-3', name: 'Electrical system', probability: 30, expanded: false },
+          { id: '1-1', name: 'Engine failure', probability: 10, expanded: false },
+          { id: '1-2', name: 'Structural issue', probability: 10, expanded: false },
+          { id: '1-3', name: 'Electrical system', probability: 10, expanded: false },
         ]
       },
       { id: '2', name: 'Pilot error', probability: 25, expanded: false },
@@ -185,6 +206,28 @@ const ProbabilityDistributionVisualizer = () => {
     setRootNode(toggleNodeRecursive(rootNode));
   };
 
+  const normalizeNode = (nodeId) => {
+    const normalizeNodeRecursive = (node) => {
+      if (node.id === nodeId && node.children) {
+        const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
+        const normalizedChildren = node.children.map(child => ({
+          ...child,
+          probability: (child.probability / sum) * node.probability
+        }));
+        return { ...node, children: normalizedChildren };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          children: node.children.map(normalizeNodeRecursive),
+        };
+      }
+      return node;
+    };
+
+    setRootNode(normalizeNodeRecursive(rootNode));
+  };
+
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Probability Distribution Visualizer</h1>
@@ -197,6 +240,7 @@ const ProbabilityDistributionVisualizer = () => {
             onAdd={addChild}
             onRemove={removeNode}
             onToggle={toggleNode}
+            onNormalize={normalizeNode}
           />
         </div>
         <div>
