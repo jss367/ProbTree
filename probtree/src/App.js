@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ResponsiveContainer, Treemap } from 'recharts';
 import { PlusCircle, MinusCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 }) => {
@@ -59,6 +58,23 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
           ))}
         </div>
       )}
+    </div>
+  );
+};
+
+const SimpleProbabilityVisualization = ({ data }) => {
+  return (
+    <div className="flex flex-wrap">
+      {data.children.map((item) => (
+        <div
+          key={item.id}
+          className="m-2 p-2 border rounded"
+          style={{ width: `${item.probability}%`, backgroundColor: '#8884d8' }}
+        >
+          <div className="text-white font-bold">{item.name}</div>
+          <div className="text-white">{item.probability}%</div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -152,23 +168,6 @@ const ProbabilityDistributionVisualizer = () => {
     setRootNode(toggleNodeRecursive(rootNode));
   };
 
-  const flattenTree = (node, data = []) => {
-    data.push({
-      name: node.name,
-      size: node.probability,
-      id: node.id,
-    });
-    if (node.children) {
-      node.children.forEach((child) => flattenTree(child, data));
-    }
-    return data;
-  };
-
-  const treeMapData = {
-    name: 'root',
-    children: flattenTree(rootNode),
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Probability Distribution Visualizer</h1>
@@ -185,59 +184,7 @@ const ProbabilityDistributionVisualizer = () => {
         </div>
         <div className="w-full md:w-1/2 pl-4">
           <h2 className="text-xl font-semibold mb-2">Visualization</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <Treemap
-              data={treeMapData}
-              dataKey="size"
-              ratio={4 / 3}
-              stroke="#fff"
-              fill="#8884d8"
-            >
-              <Treemap
-                content={({ root, depth, x, y, width, height, index, payload, colors, rank, name }) => {
-                  return (
-                    <g>
-                      <rect
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={height}
-                        style={{
-                          fill: depth < 2 ? colors[Math.floor((index / root.children.length) * 6)] : 'none',
-                          stroke: '#fff',
-                          strokeWidth: 2 / (depth + 1e-10),
-                          strokeOpacity: 1 / (depth + 1e-10),
-                        }}
-                      />
-                      {depth === 1 && (
-                        <text
-                          x={x + width / 2}
-                          y={y + height / 2 + 7}
-                          textAnchor="middle"
-                          fill="#fff"
-                          fontSize={14}
-                        >
-                          {name}
-                        </text>
-                      )}
-                      {depth === 1 && (
-                        <text
-                          x={x + width / 2}
-                          y={y + height / 2 - 7}
-                          textAnchor="middle"
-                          fill="#fff"
-                          fontSize={16}
-                          fontWeight="bold"
-                        >
-                          {`${payload.size}%`}
-                        </text>
-                      )}
-                    </g>
-                  );
-                }}
-              />
-            </Treemap>
-          </ResponsiveContainer>
+          <SimpleProbabilityVisualization data={rootNode} />
         </div>
       </div>
     </div>
