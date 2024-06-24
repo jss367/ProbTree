@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { PlusCircle, MinusCircle, ChevronRight, ChevronDown } from 'lucide-react';
 
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 }) => {
   const handleProbabilityChange = (e) => {
@@ -11,18 +10,16 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
   };
 
   return (
-    <div className="mb-2">
-      <div className="flex items-center">
-        {node.children && (
-          <button onClick={() => onToggle(node.id)} className="mr-2">
-            {node.expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          </button>
-        )}
+    <div style={{ marginBottom: '10px', marginLeft: `${level * 20}px` }}>
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f0f0f0', padding: '5px', borderRadius: '4px' }}>
+        <button onClick={() => onToggle(node.id)} style={{ marginRight: '10px' }}>
+          {node.expanded ? '▼' : '►'}
+        </button>
         <input
           type="text"
           value={node.name}
           onChange={handleNameChange}
-          className="mr-2 p-1 border rounded"
+          style={{ marginRight: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
         <input
           type="number"
@@ -31,20 +28,14 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
           min="0"
           max="100"
           step="0.1"
-          className="w-20 mr-2 p-1 border rounded"
+          style={{ width: '60px', marginRight: '5px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
         />
-        <span className="mr-2">%</span>
-        <button onClick={() => onAdd(node.id)} className="mr-2">
-          <PlusCircle size={16} />
-        </button>
-        {level > 0 && (
-          <button onClick={() => onRemove(node.id)}>
-            <MinusCircle size={16} />
-          </button>
-        )}
+        <span style={{ marginRight: '10px' }}>%</span>
+        <button onClick={() => onAdd(node.id)} style={{ marginRight: '5px' }}>+</button>
+        {level > 0 && <button onClick={() => onRemove(node.id)}>-</button>}
       </div>
       {node.children && node.expanded && (
-        <div className="ml-8">
+        <div>
           {node.children.map((child) => (
             <ProbabilityNode
               key={child.id}
@@ -64,19 +55,23 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0 
 
 const HierarchicalVisualization = ({ node, parentProbability = 100, depth = 0 }) => {
   const actualProbability = (node.probability * parentProbability) / 100;
-  const backgroundColor = `hsl(${depth * 30}, 70%, 60%)`;
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
+  const bgColor = colors[depth % colors.length];
 
   return (
-    <div className="mb-2">
+    <div style={{ marginBottom: '10px' }}>
       <div
-        className="p-2 text-white rounded"
         style={{
+          backgroundColor: bgColor,
+          color: 'white',
+          padding: '10px',
+          borderRadius: '4px',
           width: `${actualProbability}%`,
-          backgroundColor,
-          marginLeft: `${depth * 20}px`
+          marginLeft: `${depth * 20}px`,
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}
       >
-        <div className="font-bold">{node.name}</div>
+        <div style={{ fontWeight: 'bold' }}>{node.name}</div>
         <div>{actualProbability.toFixed(2)}%</div>
       </div>
       {node.children && node.children.map(child => (
@@ -102,7 +97,7 @@ const ProbabilityDistributionVisualizer = () => {
         id: '1', 
         name: 'Plane malfunction', 
         probability: 25, 
-        expanded: false,
+        expanded: true,
         children: [
           { id: '1-1', name: 'Engine failure', probability: 40, expanded: false },
           { id: '1-2', name: 'Structural issue', probability: 30, expanded: false },
@@ -191,11 +186,11 @@ const ProbabilityDistributionVisualizer = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Probability Distribution Visualizer</h1>
-      <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-1/2 pr-4">
-          <h2 className="text-xl font-semibold mb-2">Input</h2>
+    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Probability Distribution Visualizer</h1>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div>
+          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Input</h2>
           <ProbabilityNode
             node={rootNode}
             onUpdate={updateNode}
@@ -204,8 +199,8 @@ const ProbabilityDistributionVisualizer = () => {
             onToggle={toggleNode}
           />
         </div>
-        <div className="w-full md:w-1/2 pl-4">
-          <h2 className="text-xl font-semibold mb-2">Visualization</h2>
+        <div>
+          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
           <HierarchicalVisualization node={rootNode} />
         </div>
       </div>
