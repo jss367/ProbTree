@@ -74,8 +74,8 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
   );
 };
 
-const HierarchicalVisualization = ({ node, parentProbability = 100, depth = 0 }) => {
-  const actualProbability = (node.probability * parentProbability) / 100;
+const HierarchicalVisualization = ({ node, cumulativeProbability = 100, depth = 0 }) => {
+  const actualProbability = (node.probability * cumulativeProbability) / 100;
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
   const bgColor = colors[depth % colors.length];
 
@@ -99,7 +99,7 @@ const HierarchicalVisualization = ({ node, parentProbability = 100, depth = 0 })
         <HierarchicalVisualization
           key={child.id}
           node={child}
-          parentProbability={actualProbability}
+          cumulativeProbability={actualProbability}
           depth={depth + 1}
         />
       ))}
