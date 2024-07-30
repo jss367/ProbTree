@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability, isAbsolute }) => {
   const [isNormalized, setIsNormalized] = useState(true);
   const [inputValue, setInputValue] = useState(node.probability.toString());
@@ -30,8 +30,8 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
     }
   };
 
-  const displayProbability = isAbsolute 
-    ? node.probability 
+  const displayProbability = isAbsolute
+    ? node.probability
     : level === 0 ? 100 : node.probability;
 
   return (
@@ -112,14 +112,14 @@ const HierarchicalVisualization = ({ node, depth = 0, isAbsolute }) => {
         <div>{node.probability.toFixed(2)}%</div>
       </div>
       {node.children && (
-        <div style={{ 
-          display: 'flex', 
+        <div style={{
+          display: 'flex',
           flexDirection: 'row',
           width: '100%',
           marginTop: '5px'
         }}>
           {node.children.map(child => (
-            <div key={child.id} style={{ 
+            <div key={child.id} style={{
               flex: child.probability,
               paddingRight: '5px',
               boxSizing: 'border-box'
@@ -145,10 +145,10 @@ const ProbabilityDistributionVisualizer = () => {
     probability: 100,
     expanded: true,
     children: [
-      { 
-        id: '1', 
-        name: 'Plane malfunction', 
-        probability: 25, 
+      {
+        id: '1',
+        name: 'Plane malfunction',
+        probability: 25,
         expanded: true,
         children: [
           { id: '1-1', name: 'Engine failure', probability: 10, expanded: false },
@@ -269,7 +269,7 @@ const ProbabilityDistributionVisualizer = () => {
         // Switching to absolute
         newProbability = node.id === 'root' ? 100 : (node.probability / 100) * parentProbability;
       }
-      
+
       if (node.children) {
         return {
           ...node,
