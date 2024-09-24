@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
 import { addChild, normalizeNode, removeNode, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
@@ -28,7 +28,20 @@ const ProbabilityDistributionVisualizer = () => {
       { id: '4', name: '3rd party intervention', probability: 25, expanded: false },
     ],
   });
+  const [savedDistributions, setSavedDistributions] = useState([]);
+  const [distributionName, setDistributionName] = useState('');
   const { user, signIn, signOut, saveDistribution, loadDistributions, shareDistribution } = useFirebase();
+
+  useEffect(() => {
+    if (user) {
+      loadSavedDistributions();
+    }
+  }, [user]);
+
+  const loadSavedDistributions = async () => {
+    const distributions = await loadDistributions();
+    setSavedDistributions(distributions);
+  };
 
   const handleUpdateNode = (updatedNode) => {
     setRootNode(prevRoot => updateNode(prevRoot, updatedNode));
@@ -53,6 +66,25 @@ const ProbabilityDistributionVisualizer = () => {
   const handleToggleAbsolute = () => {
     setRootNode(prevRoot => toggleAbsolute(prevRoot, !isAbsolute));
     setIsAbsolute(!isAbsolute);
+  };
+
+  const handleSaveDistribution = async () => {
+    if (distributionName.trim() === '') {
+      alert('Please enter a name for the distribution');
+      return;
+    }
+    await saveDistribution(distributionName, rootNode);
+    setDistributionName('');
+    loadSavedDistributions();
+  };
+
+  const handleLoadDistribution = (distribution) => {
+    setRootNode(distribution.data);
+  };
+
+  const handleShareDistribution = async (distributionId) => {
+    const shareLink = await shareDistribution(distributionId);
+    alert(`Share this link: ${shareLink}`);
   };
 
   return (
@@ -85,6 +117,29 @@ const ProbabilityDistributionVisualizer = () => {
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
           <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />
+        </div>
+        <div>
+          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Save Distribution</h2>
+          <input
+            type="text"
+            value={distributionName}
+            onChange={(e) => setDistributionName(e.target.value)}
+            placeholder="Enter distribution name"
+            style={{ marginRight: '10px', padding: '5px' }}
+          />
+          <button onClick={handleSaveDistribution}>Save</button>
+        </div>
+        <div>
+          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Saved Distributions</h2>
+          <ul>
+            {savedDistributions.map((dist) => (
+              <li key={dist.id} style={{ marginBottom: '10px' }}>
+                {dist.name}
+                <button onClick={() => handleLoadDistribution(dist)} style={{ marginLeft: '10px' }}>Load</button>
+                <button onClick={() => handleShareDistribution(dist.id)} style={{ marginLeft: '10px' }}>Share</button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
