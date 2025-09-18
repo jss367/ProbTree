@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
 import { addChild, normalizeNode, removeNode, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import ProbabilityNode from './ProbabilityNode';
 
 const ProbabilityDistributionVisualizer = () => {
+  const fileInputRef = useRef(null);
   const [isAbsolute, setIsAbsolute] = useState(false);
   const [rootNode, setRootNode] = useState({
     id: 'root',
@@ -30,13 +31,15 @@ const ProbabilityDistributionVisualizer = () => {
   });
   const [savedDistributions, setSavedDistributions] = useState([]);
   const [distributionName, setDistributionName] = useState('');
-  const { user, signIn, signOut, saveDistribution, loadDistributions, shareDistribution } = useFirebase();
+  const { user, saveDistribution, loadDistributions, shareDistribution } = useFirebase();
 
   useEffect(() => {
-    if (user) {
-      loadSavedDistributions();
-    }
-  }, [user]);
+    if (!user) return;
+    (async () => {
+      const distributions = await loadDistributions();
+      setSavedDistributions(distributions);
+    })();
+  }, [user, loadDistributions]);
 
   const loadSavedDistributions = async () => {
     const distributions = await loadDistributions();
@@ -87,6 +90,51 @@ const ProbabilityDistributionVisualizer = () => {
     alert(`Share this link: ${shareLink}`);
   };
 
+  const handleExport = () => {
+    try {
+      const payload = { isAbsolute, data: rootNode };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      a.href = url;
+      a.download = `probability-distribution-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to export: ' + err.message);
+    }
+  };
+
+  const handleImportClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      if (!obj || typeof obj !== 'object' || !obj.data || obj.data.id !== 'root') {
+        alert('Invalid file format.');
+        return;
+      }
+      if (typeof obj.isAbsolute === 'boolean') {
+        setIsAbsolute(obj.isAbsolute);
+      }
+      setRootNode(obj.data);
+    } catch (err) {
+      alert('Failed to import: ' + err.message);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Probability Distribution Visualizer</h1>
@@ -128,6 +176,18 @@ const ProbabilityDistributionVisualizer = () => {
             style={{ marginRight: '10px', padding: '5px' }}
           />
           <button onClick={handleSaveDistribution}>Save</button>
+        </div>
+        <div>
+          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Import / Export</h2>
+          <button onClick={handleExport} style={{ marginRight: '10px' }}>Export JSON</button>
+          <button onClick={handleImportClick} style={{ marginRight: '10px' }}>Import JSON</button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFile}
+            style={{ display: 'none' }}
+          />
         </div>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Saved Distributions</h2>
