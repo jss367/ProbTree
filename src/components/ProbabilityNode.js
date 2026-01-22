@@ -11,9 +11,11 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
   }, [node.probability]);
 
   useEffect(() => {
-    if (node.children) {
+    if (node.children && node.children.length > 0) {
       const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
       setIsNormalized(Math.abs(sum - (isAbsolute ? node.probability : 100)) < 0.01);
+    } else {
+      setIsNormalized(true); // No children = nothing to normalize
     }
   }, [node, isAbsolute]);
 
@@ -48,7 +50,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         <button
           className="node-toggle"
           onClick={() => onToggle(node.id)}
-          style={{ visibility: node.children ? 'visible' : 'hidden' }}
+          style={{ visibility: node.children && node.children.length > 0 ? 'visible' : 'hidden' }}
         >
           {node.expanded ? '▼' : '▶'}
         </button>
@@ -100,14 +102,14 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
               −
             </button>
           )}
-          {node.children && (
+          {node.children && node.children.length > 0 && (
             <button className="btn btn-success btn-sm" onClick={() => onNormalize(node.id)}>
               Normalize
             </button>
           )}
         </div>
       </div>
-      {node.children && !isNormalized && (
+      {node.children && node.children.length > 0 && !isNormalized && (
         <div style={{
           color: '#dc2626',
           fontSize: '13px',
@@ -122,7 +124,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
           Children don't sum to {isAbsolute ? node.probability.toFixed(1) : '100'}%
         </div>
       )}
-      {node.children && node.expanded && (
+      {node.children && node.children.length > 0 && node.expanded && (
         <div style={{ marginTop: '4px' }}>
           {node.children.map((child) => (
             <ProbabilityNode

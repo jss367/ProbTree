@@ -72,9 +72,22 @@ const ProbabilityDistributionVisualizer = () => {
     alert(`Share this link: ${shareLink}`);
   };
 
+  // Round probabilities to avoid floating point precision issues in export
+  const roundProbabilities = (node) => {
+    const rounded = {
+      ...node,
+      probability: Math.round(node.probability * 1000) / 1000 // Round to 3 decimal places
+    };
+    if (node.children) {
+      rounded.children = node.children.map(roundProbabilities);
+    }
+    return rounded;
+  };
+
   const handleExport = () => {
     try {
-      const payload = { isAbsolute, data: rootNode };
+      const cleanedData = roundProbabilities(rootNode);
+      const payload = { isAbsolute, data: cleanedData };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
