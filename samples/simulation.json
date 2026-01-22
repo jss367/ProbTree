@@ -1,0 +1,64 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "Are we living in a simulation?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Base reality (not a simulation)",
+        "probability": 70,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "Simulations are impossible at this scale", "probability": 25, "expanded": false },
+          { "id": "1-2", "name": "Civilizations don't run ancestor sims", "probability": 20, "expanded": false },
+          { "id": "1-3", "name": "Civilizations go extinct before capability", "probability": 15, "expanded": false },
+          { "id": "1-4", "name": "We're the first civilization", "probability": 10, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "We are in a simulation",
+        "probability": 30,
+        "expanded": true,
+        "children": [
+          {
+            "id": "2-1",
+            "name": "Scientific/research simulation",
+            "probability": 12,
+            "expanded": true,
+            "children": [
+              { "id": "2-1-1", "name": "Ancestor simulation", "probability": 6, "expanded": false },
+              { "id": "2-1-2", "name": "Physics research", "probability": 4, "expanded": false },
+              { "id": "2-1-3", "name": "Consciousness research", "probability": 2, "expanded": false }
+            ]
+          },
+          {
+            "id": "2-2",
+            "name": "Entertainment",
+            "probability": 8,
+            "expanded": true,
+            "children": [
+              { "id": "2-2-1", "name": "Game (we're NPCs)", "probability": 5, "expanded": false },
+              { "id": "2-2-2", "name": "Drama/story for viewers", "probability": 3, "expanded": false }
+            ]
+          },
+          {
+            "id": "2-3",
+            "name": "Training environment for AI",
+            "probability": 6,
+            "expanded": false
+          },
+          {
+            "id": "2-4",
+            "name": "Nested simulation (sims all the way down)",
+            "probability": 4,
+            "expanded": false
+          }
+        ]
+      }
+    ]
+  }
+}

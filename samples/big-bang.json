@@ -1,0 +1,70 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "What caused the Big Bang?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Quantum fluctuation from nothing",
+        "probability": 25,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "Spontaneous tunneling from nothing", "probability": 15, "expanded": false },
+          { "id": "1-2", "name": "Vacuum fluctuation in quantum foam", "probability": 10, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Multiverse theories",
+        "probability": 30,
+        "expanded": true,
+        "children": [
+          { "id": "2-1", "name": "Eternal inflation (bubble universe)", "probability": 15, "expanded": false },
+          { "id": "2-2", "name": "Brane collision (ekpyrotic)", "probability": 8, "expanded": false },
+          { "id": "2-3", "name": "Black hole spawning new universe", "probability": 7, "expanded": false }
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Cyclical universe",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          { "id": "3-1", "name": "Big Bounce (previous collapse)", "probability": 8, "expanded": false },
+          { "id": "3-2", "name": "Conformal cyclic cosmology (Penrose)", "probability": 4, "expanded": false },
+          { "id": "3-3", "name": "Infinite cycles, no beginning", "probability": 3, "expanded": false }
+        ]
+      },
+      {
+        "id": "4",
+        "name": "Intentional creation",
+        "probability": 10,
+        "expanded": true,
+        "children": [
+          { "id": "4-1", "name": "Simulation started by advanced beings", "probability": 5, "expanded": false },
+          { "id": "4-2", "name": "Theological creation", "probability": 4, "expanded": false },
+          { "id": "4-3", "name": "Created by future humans", "probability": 1, "expanded": false }
+        ]
+      },
+      {
+        "id": "5",
+        "name": "Question is meaningless",
+        "probability": 10,
+        "expanded": true,
+        "children": [
+          { "id": "5-1", "name": "Time began at Big Bang (no 'before')", "probability": 7, "expanded": false },
+          { "id": "5-2", "name": "Causality doesn't apply", "probability": 3, "expanded": false }
+        ]
+      },
+      {
+        "id": "6",
+        "name": "Something beyond current physics",
+        "probability": 10,
+        "expanded": false
+      }
+    ]
+  }
+}

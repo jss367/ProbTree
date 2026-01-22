@@ -7,14 +7,14 @@ function App() {
 
   return (
     <div>
-      {user ? (
-        <>
+      <div style={{ marginBottom: '10px' }}>
+        {user ? (
           <button onClick={signOut}>Sign Out</button>
-          <ProbabilityDistributionVisualizer />
-        </>
-      ) : (
-        <button onClick={signIn}>Sign In</button>
-      )}
+        ) : (
+          <button onClick={signIn}>Sign In</button>
+        )}
+      </div>
+      <ProbabilityDistributionVisualizer />
     </div>
   );
 }

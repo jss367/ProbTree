@@ -151,32 +151,47 @@ const ProbabilityDistributionVisualizer = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Input</h2>
-          <ProbabilityNode
-            node={rootNode}
-            onUpdate={handleUpdateNode}
-            onAdd={handleAddChild}
-            onRemove={handleRemoveNode}
-            onToggle={handleToggleNode}
-            onNormalize={handleNormalizeNode}
-            parentProbability={100}
-            isAbsolute={isAbsolute}
-          />
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <button onClick={() => handleAddChild(rootNode.id)}>Add top-level belief</button>
+            {rootNode.children && rootNode.children.length > 0 && (
+              <button onClick={() => handleNormalizeNode(rootNode.id)} style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
+                Normalize top-level
+              </button>
+            )}
+          </div>
+          <div>
+            {rootNode.children && rootNode.children.map((child) => (
+              <ProbabilityNode
+                key={child.id}
+                node={child}
+                onUpdate={handleUpdateNode}
+                onAdd={handleAddChild}
+                onRemove={handleRemoveNode}
+                onToggle={handleToggleNode}
+                onNormalize={handleNormalizeNode}
+                parentProbability={rootNode.probability}
+                isAbsolute={isAbsolute}
+              />
+            ))}
+          </div>
         </div>
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
           <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />
         </div>
-        <div>
-          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Save Distribution</h2>
-          <input
-            type="text"
-            value={distributionName}
-            onChange={(e) => setDistributionName(e.target.value)}
-            placeholder="Enter distribution name"
-            style={{ marginRight: '10px', padding: '5px' }}
-          />
-          <button onClick={handleSaveDistribution}>Save</button>
-        </div>
+        {user && (
+          <div>
+            <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Save Distribution</h2>
+            <input
+              type="text"
+              value={distributionName}
+              onChange={(e) => setDistributionName(e.target.value)}
+              placeholder="Enter distribution name"
+              style={{ marginRight: '10px', padding: '5px' }}
+            />
+            <button onClick={handleSaveDistribution}>Save</button>
+          </div>
+        )}
         <div>
           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Import / Export</h2>
           <button onClick={handleExport} style={{ marginRight: '10px' }}>Export JSON</button>
@@ -189,18 +204,20 @@ const ProbabilityDistributionVisualizer = () => {
             style={{ display: 'none' }}
           />
         </div>
-        <div>
-          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Saved Distributions</h2>
-          <ul>
-            {savedDistributions.map((dist) => (
-              <li key={dist.id} style={{ marginBottom: '10px' }}>
-                {dist.name}
-                <button onClick={() => handleLoadDistribution(dist)} style={{ marginLeft: '10px' }}>Load</button>
-                <button onClick={() => handleShareDistribution(dist.id)} style={{ marginLeft: '10px' }}>Share</button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {user && (
+          <div>
+            <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Saved Distributions</h2>
+            <ul>
+              {savedDistributions.map((dist) => (
+                <li key={dist.id} style={{ marginBottom: '10px' }}>
+                  {dist.name}
+                  <button onClick={() => handleLoadDistribution(dist)} style={{ marginLeft: '10px' }}>Load</button>
+                  <button onClick={() => handleShareDistribution(dist.id)} style={{ marginLeft: '10px' }}>Share</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

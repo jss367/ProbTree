@@ -1,0 +1,59 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "What is consciousness?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Emergent from computation",
+        "probability": 40,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "Global workspace theory", "probability": 15, "expanded": false },
+          { "id": "1-2", "name": "Higher-order theories", "probability": 12, "expanded": false },
+          { "id": "1-3", "name": "Predictive processing", "probability": 13, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Fundamental feature of reality",
+        "probability": 25,
+        "expanded": true,
+        "children": [
+          { "id": "2-1", "name": "Panpsychism (consciousness everywhere)", "probability": 12, "expanded": false },
+          { "id": "2-2", "name": "Integrated Information Theory (IIT)", "probability": 10, "expanded": false },
+          { "id": "2-3", "name": "Dualism (separate substance)", "probability": 3, "expanded": false }
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Quantum phenomenon",
+        "probability": 10,
+        "expanded": true,
+        "children": [
+          { "id": "3-1", "name": "Orchestrated objective reduction (Penrose)", "probability": 6, "expanded": false },
+          { "id": "3-2", "name": "Quantum coherence in microtubules", "probability": 4, "expanded": false }
+        ]
+      },
+      {
+        "id": "4",
+        "name": "Illusion / not what it seems",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          { "id": "4-1", "name": "Eliminativism (consciousness doesn't exist)", "probability": 5, "expanded": false },
+          { "id": "4-2", "name": "Illusionism (real but misperceived)", "probability": 10, "expanded": false }
+        ]
+      },
+      {
+        "id": "5",
+        "name": "Something we can't conceive yet",
+        "probability": 10,
+        "expanded": false
+      }
+    ]
+  }
+}

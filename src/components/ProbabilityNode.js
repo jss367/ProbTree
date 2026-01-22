@@ -35,7 +35,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
 
   const displayProbability = isAbsolute
     ? node.probability
-    : level === 0 ? 100 : node.probability;
+    : node.id === 'root' ? 100 : node.probability;
 
   return (
     <div style={{ marginBottom: '10px', marginLeft: `${level * 20}px` }}>
@@ -61,7 +61,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         />
         <span style={{ marginRight: '10px' }}>%</span>
         <button onClick={() => onAdd(node.id)} style={{ marginRight: '5px' }}>+</button>
-        {level > 0 && <button onClick={() => onRemove(node.id)}>-</button>}
+        {node.id !== 'root' && <button onClick={() => onRemove(node.id)}>-</button>}
         {node.children && (
           <button onClick={() => onNormalize(node.id)} style={{ marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
             Normalize

@@ -1,0 +1,69 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "When will AGI arrive?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Already here or imminent (by 2027)",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "Current LLMs are AGI (just scaling)", "probability": 5, "expanded": false },
+          { "id": "1-2", "name": "One more breakthrough away", "probability": 10, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Near-term (2027-2035)",
+        "probability": 30,
+        "expanded": true,
+        "children": [
+          { "id": "2-1", "name": "Scaling + architecture improvements", "probability": 18, "expanded": false },
+          { "id": "2-2", "name": "Hybrid neuro-symbolic approach", "probability": 12, "expanded": false }
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Medium-term (2035-2050)",
+        "probability": 25,
+        "expanded": true,
+        "children": [
+          { "id": "3-1", "name": "Requires brain simulation advances", "probability": 10, "expanded": false },
+          { "id": "3-2", "name": "Needs new theoretical foundations", "probability": 10, "expanded": false },
+          { "id": "3-3", "name": "Hardware bottlenecks slow progress", "probability": 5, "expanded": false }
+        ]
+      },
+      {
+        "id": "4",
+        "name": "Long-term (2050-2100)",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          { "id": "4-1", "name": "Multiple paradigm shifts needed", "probability": 10, "expanded": false },
+          { "id": "4-2", "name": "Regulation/societal factors slow it", "probability": 5, "expanded": false }
+        ]
+      },
+      {
+        "id": "5",
+        "name": "Very long-term (2100+)",
+        "probability": 10,
+        "expanded": false
+      },
+      {
+        "id": "6",
+        "name": "Never / impossible",
+        "probability": 5,
+        "expanded": true,
+        "children": [
+          { "id": "6-1", "name": "Consciousness required, can't be made", "probability": 2, "expanded": false },
+          { "id": "6-2", "name": "Fundamental complexity barrier", "probability": 2, "expanded": false },
+          { "id": "6-3", "name": "Civilization collapse prevents it", "probability": 1, "expanded": false }
+        ]
+      }
+    ]
+  }
+}

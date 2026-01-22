@@ -1,0 +1,57 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "Have aliens visited Earth?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "No alien visitation",
+        "probability": 85,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "No intelligent aliens exist", "probability": 20, "expanded": false },
+          { "id": "1-2", "name": "Too far / physics prevents travel", "probability": 35, "expanded": false },
+          { "id": "1-3", "name": "They exist but aren't interested", "probability": 15, "expanded": false },
+          { "id": "1-4", "name": "They haven't found us yet", "probability": 15, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Aliens have visited",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          {
+            "id": "2-1",
+            "name": "Visited but no ongoing presence",
+            "probability": 8,
+            "expanded": true,
+            "children": [
+              { "id": "2-1-1", "name": "Probes only (no biologicals)", "probability": 5, "expanded": false },
+              { "id": "2-1-2", "name": "Ancient visitation, long gone", "probability": 3, "expanded": false }
+            ]
+          },
+          {
+            "id": "2-2",
+            "name": "Currently observing us",
+            "probability": 5,
+            "expanded": true,
+            "children": [
+              { "id": "2-2-1", "name": "Hidden observation (zoo hypothesis)", "probability": 3, "expanded": false },
+              { "id": "2-2-2", "name": "UAPs are alien craft", "probability": 2, "expanded": false }
+            ]
+          },
+          {
+            "id": "2-3",
+            "name": "Government contact/coverup",
+            "probability": 2,
+            "expanded": false
+          }
+        ]
+      }
+    ]
+  }
+}

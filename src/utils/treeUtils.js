@@ -20,7 +20,7 @@ export const addChild = (rootNode, parentId) => {
     if (node.id === parentId) {
       const newChild = {
         id: Date.now().toString(),
-        name: 'New cause',
+        name: '',
         probability: 0,
         expanded: false,
       };

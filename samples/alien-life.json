@@ -1,0 +1,53 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "Does alien life exist?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Life exists elsewhere",
+        "probability": 75,
+        "expanded": true,
+        "children": [
+          {
+            "id": "1-1",
+            "name": "Microbial only (no intelligence)",
+            "probability": 35,
+            "expanded": true,
+            "children": [
+              { "id": "1-1-1", "name": "Within our solar system", "probability": 15, "expanded": false },
+              { "id": "1-1-2", "name": "Only outside solar system", "probability": 20, "expanded": false }
+            ]
+          },
+          {
+            "id": "1-2",
+            "name": "Intelligent life exists",
+            "probability": 40,
+            "expanded": true,
+            "children": [
+              { "id": "1-2-1", "name": "Exists but too far to contact", "probability": 20, "expanded": false },
+              { "id": "1-2-2", "name": "Exists and hiding (zoo hypothesis)", "probability": 8, "expanded": false },
+              { "id": "1-2-3", "name": "Exists, unaware of us", "probability": 10, "expanded": false },
+              { "id": "1-2-4", "name": "Has visited Earth", "probability": 2, "expanded": false }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "We are alone",
+        "probability": 25,
+        "expanded": true,
+        "children": [
+          { "id": "2-1", "name": "Rare Earth hypothesis", "probability": 10, "expanded": false },
+          { "id": "2-2", "name": "Great Filter is behind us", "probability": 8, "expanded": false },
+          { "id": "2-3", "name": "We're in a simulation alone", "probability": 4, "expanded": false },
+          { "id": "2-4", "name": "First intelligent species ever", "probability": 3, "expanded": false }
+        ]
+      }
+    ]
+  }
+}

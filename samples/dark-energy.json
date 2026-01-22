@@ -1,0 +1,59 @@
+{
+  "isAbsolute": false,
+  "data": {
+    "id": "root",
+    "name": "What is dark energy?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Cosmological constant (Lambda)",
+        "probability": 45,
+        "expanded": true,
+        "children": [
+          { "id": "1-1", "name": "True vacuum energy", "probability": 30, "expanded": false },
+          { "id": "1-2", "name": "Anthropic selection effect", "probability": 15, "expanded": false }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Quintessence (dynamic field)",
+        "probability": 20,
+        "expanded": true,
+        "children": [
+          { "id": "2-1", "name": "Slowly rolling scalar field", "probability": 12, "expanded": false },
+          { "id": "2-2", "name": "K-essence", "probability": 5, "expanded": false },
+          { "id": "2-3", "name": "Phantom energy", "probability": 3, "expanded": false }
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Modified gravity",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          { "id": "3-1", "name": "f(R) gravity", "probability": 6, "expanded": false },
+          { "id": "3-2", "name": "Extra dimensions leaking gravity", "probability": 5, "expanded": false },
+          { "id": "3-3", "name": "Emergent/entropic gravity", "probability": 4, "expanded": false }
+        ]
+      },
+      {
+        "id": "4",
+        "name": "Observational artifact",
+        "probability": 5,
+        "expanded": true,
+        "children": [
+          { "id": "4-1", "name": "We're in a local void", "probability": 3, "expanded": false },
+          { "id": "4-2", "name": "Systematic measurement errors", "probability": 2, "expanded": false }
+        ]
+      },
+      {
+        "id": "5",
+        "name": "Something completely unknown",
+        "probability": 15,
+        "expanded": false
+      }
+    ]
+  }
+}
