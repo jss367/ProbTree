@@ -3,27 +3,68 @@ import html2canvas from 'html2canvas';
 
 const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
 
-// Flatten tree into levels for row-based display
-const flattenToLevels = (node, level = 0, parentWidth = 100, startX = 0, levels = []) => {
+const MIN_ITEM_WIDTH = 150; // Minimum pixels per item for readability
+const GAP = 4; // Gap between items in pixels
+
+// Calculate pixel widths bottom-up so parents always cover their children
+const calculateWidths = (node, parentProb = 100, baseWidth = 1200) => {
+  const proportionalWidth = (node.probability / parentProb) * baseWidth;
+
+  if (!node.children || node.children.length === 0) {
+    // Leaf node: use minimum width if needed
+    return {
+      ...node,
+      pixelWidth: Math.max(proportionalWidth, MIN_ITEM_WIDTH)
+    };
+  }
+
+  // Calculate children widths first (bottom-up)
+  const childrenWithWidths = node.children.map(child =>
+    calculateWidths(child, node.probability, proportionalWidth)
+  );
+
+  // Sum of children widths + gaps
+  const childrenTotalWidth = childrenWithWidths.reduce((sum, child) => sum + child.pixelWidth, 0)
+    + (childrenWithWidths.length - 1) * GAP;
+
+  // Parent width must be at least as wide as children, or its proportional width, or minimum
+  const nodeWidth = Math.max(proportionalWidth, childrenTotalWidth, MIN_ITEM_WIDTH);
+
+  // If parent expanded, redistribute extra space to children proportionally
+  let finalChildren = childrenWithWidths;
+  if (nodeWidth > childrenTotalWidth) {
+    const extraSpace = nodeWidth - childrenTotalWidth;
+    const childrenProportionalSum = childrenWithWidths.reduce((sum, c) => sum + c.probability, 0);
+    finalChildren = childrenWithWidths.map(child => ({
+      ...child,
+      pixelWidth: child.pixelWidth + (child.probability / childrenProportionalSum) * extraSpace
+    }));
+  }
+
+  return {
+    ...node,
+    pixelWidth: nodeWidth,
+    children: finalChildren
+  };
+};
+
+// Flatten tree with calculated widths into levels
+const flattenToLevels = (node, level = 0, levels = []) => {
   if (!levels[level]) levels[level] = [];
 
-  const item = {
-    ...node,
-    width: parentWidth,
-    startX: startX
-  };
-
   if (node.id !== 'root') {
-    levels[level].push(item);
+    levels[level].push({
+      id: node.id,
+      name: node.name,
+      probability: node.probability,
+      pixelWidth: node.pixelWidth
+    });
   }
 
   if (node.children) {
-    let childStartX = startX;
     const childLevel = node.id === 'root' ? level : level + 1;
     node.children.forEach(child => {
-      const childWidth = (child.probability / (node.id === 'root' ? 100 : node.probability)) * parentWidth;
-      flattenToLevels(child, childLevel, childWidth, childStartX, levels);
-      childStartX += childWidth;
+      flattenToLevels(child, childLevel, levels);
     });
   }
 
@@ -111,8 +152,10 @@ const HierarchicalVisualization = ({ node, isAbsolute }) => {
     );
   }
 
-  const levels = flattenToLevels(node);
-  const totalWidth = 1200; // Base width in pixels
+  // Calculate widths bottom-up, then flatten to levels
+  const treeWithWidths = calculateWidths(node, 100, 1200);
+  const levels = flattenToLevels(treeWithWidths);
+  const totalWidth = treeWithWidths.pixelWidth || 1200;
 
   return (
     <div>
@@ -164,18 +207,19 @@ const HierarchicalVisualization = ({ node, isAbsolute }) => {
 
             {/* Level rows */}
             {levels.map((level, levelIndex) => (
-              <div key={levelIndex} style={{ display: 'flex', marginBottom: '8px', gap: '4px' }}>
-                {level.map((item, itemIndex) => (
+              <div key={levelIndex} style={{ display: 'flex', marginBottom: '8px', gap: `${GAP}px` }}>
+                {level.map((item) => (
                   <div
                     key={item.id}
                     style={{
-                      width: `${(item.width / 100) * totalWidth - 4}px`,
+                      width: `${item.pixelWidth}px`,
                       backgroundColor: colors[levelIndex % colors.length],
                       color: 'white',
                       padding: '12px 16px',
                       borderRadius: '6px',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      boxSizing: 'border-box'
                     }}
                   >
                     <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>{item.name}</div>

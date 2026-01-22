@@ -74,45 +74,57 @@ export const toggleNode = (rootNode, nodeId) => {
 };
 
 export const normalizeNode = (rootNode, nodeId, isAbsolute) => {
-  const normalizeNodeRecursive = (node) => {
-    if (node.id === nodeId && node.children) {
-      const target = isAbsolute ? node.probability : 100;
+  // Helper to normalize a node and all its descendants
+  const normalizeSubtree = (node) => {
+    if (!node.children) return node;
 
-      // Separate locked and unlocked children
-      const lockedChildren = node.children.filter(child => child.locked);
-      const unlockedChildren = node.children.filter(child => !child.locked);
+    const target = isAbsolute ? node.probability : 100;
 
-      // Sum of locked probabilities
-      const lockedSum = lockedChildren.reduce((acc, child) => acc + child.probability, 0);
+    // Separate locked and unlocked children
+    const lockedChildren = node.children.filter(child => child.locked);
+    const unlockedChildren = node.children.filter(child => !child.locked);
 
-      // Remaining probability for unlocked children
-      const remaining = Math.max(0, target - lockedSum);
+    // Sum of locked probabilities
+    const lockedSum = lockedChildren.reduce((acc, child) => acc + child.probability, 0);
 
-      // Sum of unlocked probabilities
-      const unlockedSum = unlockedChildren.reduce((acc, child) => acc + child.probability, 0);
+    // Remaining probability for unlocked children
+    const remaining = Math.max(0, target - lockedSum);
 
-      const normalizedChildren = node.children.map(child => {
-        if (child.locked) {
-          // Keep locked children as-is
-          return child;
-        }
+    // Sum of unlocked probabilities
+    const unlockedSum = unlockedChildren.reduce((acc, child) => acc + child.probability, 0);
+
+    const normalizedChildren = node.children.map(child => {
+      let newChild;
+      if (child.locked) {
+        // Keep locked children's probability as-is
+        newChild = child;
+      } else {
         // Scale unlocked children to fill remaining space
         const newProb = unlockedSum > 0 ? (child.probability / unlockedSum) * remaining : remaining / unlockedChildren.length;
-        return { ...child, probability: newProb };
-      });
+        newChild = { ...child, probability: newProb };
+      }
+      // Recursively normalize this child's subtree
+      return normalizeSubtree(newChild);
+    });
 
-      return { ...node, children: normalizedChildren };
+    return { ...node, children: normalizedChildren };
+  };
+
+  // Find the target node and normalize from there
+  const findAndNormalize = (node) => {
+    if (node.id === nodeId) {
+      return normalizeSubtree(node);
     }
     if (node.children) {
       return {
         ...node,
-        children: node.children.map(normalizeNodeRecursive),
+        children: node.children.map(findAndNormalize),
       };
     }
     return node;
   };
 
-  return normalizeNodeRecursive(rootNode);
+  return findAndNormalize(rootNode);
 };
 
 export const toggleAbsolute = (rootNode, isAbsolute) => {
