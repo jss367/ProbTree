@@ -46,9 +46,11 @@ const ProbabilityDistributionVisualizer = () => {
     setRootNode(prevRoot => normalizeNode(prevRoot, nodeId, isAbsolute));
   };
 
-  const handleToggleAbsolute = () => {
-    setRootNode(prevRoot => toggleAbsolute(prevRoot, !isAbsolute));
-    setIsAbsolute(!isAbsolute);
+  const handleSetAbsolute = (newIsAbsolute) => {
+    if (newIsAbsolute !== isAbsolute) {
+      setRootNode(prevRoot => toggleAbsolute(prevRoot, newIsAbsolute));
+      setIsAbsolute(newIsAbsolute);
+    }
   };
 
   const handleSaveDistribution = async () => {
@@ -116,86 +118,144 @@ const ProbabilityDistributionVisualizer = () => {
   };
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Probability Distribution Visualizer</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <label>
-          <input
-            type="checkbox"
-            checked={isAbsolute}
-            onChange={handleToggleAbsolute}
-          />
-          Use Absolute Probabilities
-        </label>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <input
+          className="input"
+          type="text"
+          value={rootNode.name}
+          onChange={(e) => handleUpdateNode({ ...rootNode, name: e.target.value })}
+          style={{ fontSize: '20px', fontWeight: '600', width: '100%', maxWidth: '500px' }}
+          placeholder="Enter your question..."
+        />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div>
-          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Input</h2>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-            <button onClick={() => handleAddChild(rootNode.id)}>Add top-level belief</button>
-            {rootNode.children && rootNode.children.length > 0 && (
-              <button onClick={() => handleNormalizeNode(rootNode.id)} style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
-                Normalize top-level
+
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '24px' }}>
+        <label className="checkbox-label">
+          <input
+            type="radio"
+            name="probabilityMode"
+            checked={isAbsolute}
+            onChange={() => handleSetAbsolute(true)}
+          />
+          Absolute
+        </label>
+        <label className="checkbox-label">
+          <input
+            type="radio"
+            name="probabilityMode"
+            checked={!isAbsolute}
+            onChange={() => handleSetAbsolute(false)}
+          />
+          Relative
+        </label>
+        <span style={{ color: '#6b7280', fontSize: '13px', alignSelf: 'center' }}>
+          {isAbsolute ? '(values sum to parent)' : '(values are % of parent, sum to 100)'}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Input Section */}
+        <div className="card">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Beliefs</h2>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn btn-primary btn-sm" onClick={() => handleAddChild(rootNode.id)}>
+                + Add Belief
               </button>
+              {rootNode.children && rootNode.children.length > 0 && (
+                <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
+                  Normalize
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="card-body">
+            {rootNode.children && rootNode.children.length > 0 ? (
+              rootNode.children.map((child) => (
+                <ProbabilityNode
+                  key={child.id}
+                  node={child}
+                  onUpdate={handleUpdateNode}
+                  onAdd={handleAddChild}
+                  onRemove={handleRemoveNode}
+                  onToggle={handleToggleNode}
+                  onNormalize={handleNormalizeNode}
+                  parentProbability={rootNode.probability}
+                  isAbsolute={isAbsolute}
+                />
+              ))
+            ) : (
+              <p style={{ color: '#6b7280', margin: 0 }}>No beliefs yet. Click "Add Belief" to get started.</p>
             )}
           </div>
-          <div>
-            {rootNode.children && rootNode.children.map((child) => (
-              <ProbabilityNode
-                key={child.id}
-                node={child}
-                onUpdate={handleUpdateNode}
-                onAdd={handleAddChild}
-                onRemove={handleRemoveNode}
-                onToggle={handleToggleNode}
-                onNormalize={handleNormalizeNode}
-                parentProbability={rootNode.probability}
-                isAbsolute={isAbsolute}
-              />
-            ))}
+        </div>
+
+        {/* Visualization Section */}
+        <div className="card">
+          <div className="card-header">
+            <h2>Visualization</h2>
+          </div>
+          <div className="card-body">
+            <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />
           </div>
         </div>
-        <div>
-          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Visualization</h2>
-          <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />
-        </div>
-        {user && (
-          <div>
-            <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Save Distribution</h2>
+
+        {/* Import/Export Section */}
+        <div className="card">
+          <div className="card-header">
+            <h2>Import / Export</h2>
+          </div>
+          <div className="card-body" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button className="btn btn-secondary" onClick={handleExport}>Export JSON</button>
+            <button className="btn btn-secondary" onClick={handleImportClick}>Import JSON</button>
             <input
-              type="text"
-              value={distributionName}
-              onChange={(e) => setDistributionName(e.target.value)}
-              placeholder="Enter distribution name"
-              style={{ marginRight: '10px', padding: '5px' }}
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportFile}
+              style={{ display: 'none' }}
             />
-            <button onClick={handleSaveDistribution}>Save</button>
+          </div>
+        </div>
+
+        {/* Save Distribution Section (logged in only) */}
+        {user && (
+          <div className="card">
+            <div className="card-header">
+              <h2>Save to Cloud</h2>
+            </div>
+            <div className="card-body" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <input
+                className="input"
+                type="text"
+                value={distributionName}
+                onChange={(e) => setDistributionName(e.target.value)}
+                placeholder="Enter distribution name"
+                style={{ flex: 1, maxWidth: '300px' }}
+              />
+              <button className="btn btn-primary" onClick={handleSaveDistribution}>Save</button>
+            </div>
           </div>
         )}
-        <div>
-          <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Import / Export</h2>
-          <button onClick={handleExport} style={{ marginRight: '10px' }}>Export JSON</button>
-          <button onClick={handleImportClick} style={{ marginRight: '10px' }}>Import JSON</button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json,.json"
-            onChange={handleImportFile}
-            style={{ display: 'none' }}
-          />
-        </div>
-        {user && (
-          <div>
-            <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Saved Distributions</h2>
-            <ul>
+
+        {/* Saved Distributions Section (logged in only) */}
+        {user && savedDistributions.length > 0 && (
+          <div className="card">
+            <div className="card-header">
+              <h2>Saved Distributions</h2>
+            </div>
+            <div className="card-body">
               {savedDistributions.map((dist) => (
-                <li key={dist.id} style={{ marginBottom: '10px' }}>
-                  {dist.name}
-                  <button onClick={() => handleLoadDistribution(dist)} style={{ marginLeft: '10px' }}>Load</button>
-                  <button onClick={() => handleShareDistribution(dist.id)} style={{ marginLeft: '10px' }}>Share</button>
-                </li>
+                <div key={dist.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+                  <span style={{ fontWeight: 500 }}>{dist.name}</span>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleLoadDistribution(dist)}>Load</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleShareDistribution(dist.id)}>Share</button>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>

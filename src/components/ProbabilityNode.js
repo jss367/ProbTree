@@ -29,8 +29,13 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
       } else {
         clampedProb = Math.min(newProb, 100);
       }
-      onUpdate({ ...node, probability: clampedProb });
+      // Auto-lock when user manually changes probability
+      onUpdate({ ...node, probability: clampedProb, locked: true });
     }
+  };
+
+  const handleToggleLock = () => {
+    onUpdate({ ...node, locked: !node.locked });
   };
 
   const displayProbability = isAbsolute
@@ -38,43 +43,87 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
     : node.id === 'root' ? 100 : node.probability;
 
   return (
-    <div style={{ marginBottom: '10px', marginLeft: `${level * 20}px` }}>
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f0f0f0', padding: '5px', borderRadius: '4px' }}>
-        <button onClick={() => onToggle(node.id)} style={{ marginRight: '10px' }}>
-          {node.expanded ? '▼' : '►'}
+    <div style={{ marginLeft: level > 0 ? '24px' : '0' }}>
+      <div className="node-row" style={{ borderLeft: level > 0 ? '3px solid #e5e7eb' : 'none' }}>
+        <button
+          className="node-toggle"
+          onClick={() => onToggle(node.id)}
+          style={{ visibility: node.children ? 'visible' : 'hidden' }}
+        >
+          {node.expanded ? '▼' : '▶'}
         </button>
         <input
+          className="input"
           type="text"
           value={node.name}
           onChange={(e) => onUpdate({ ...node, name: e.target.value })}
-          style={{ marginRight: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
+          style={{ flex: 1, minWidth: '120px' }}
         />
-        <input
-          type="number"
-          value={inputValue}
-          onChange={handleProbabilityChange}
-          onBlur={() => setInputValue(displayProbability.toFixed(2))}
-          min="0"
-          max={isAbsolute ? parentProbability : 100}
-          step="any"
-          style={{ width: '60px', marginRight: '5px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-        />
-        <span style={{ marginRight: '10px' }}>%</span>
-        <button onClick={() => onAdd(node.id)} style={{ marginRight: '5px' }}>+</button>
-        {node.id !== 'root' && <button onClick={() => onRemove(node.id)}>-</button>}
-        {node.children && (
-          <button onClick={() => onNormalize(node.id)} style={{ marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}>
-            Normalize
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <input
+            className="input input-sm"
+            type="number"
+            value={inputValue}
+            onChange={handleProbabilityChange}
+            onBlur={() => setInputValue(displayProbability.toFixed(2))}
+            min="0"
+            max={isAbsolute ? parentProbability : 100}
+            step="any"
+            style={{ width: '70px', textAlign: 'right' }}
+          />
+          <span style={{ color: '#6b7280', fontSize: '14px' }}>%</span>
+          <button
+            onClick={handleToggleLock}
+            title={node.locked ? 'Unlock (allow normalize to change this value)' : 'Lock (preserve this value during normalize)'}
+            style={{
+              background: node.locked ? '#dbeafe' : 'transparent',
+              border: node.locked ? '1px solid #93c5fd' : '1px solid #e5e7eb',
+              borderRadius: '4px',
+              padding: '4px 6px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              color: node.locked ? '#2563eb' : '#9ca3af'
+            }}
+          >
+            {node.locked ? '🔒' : '🔓'}
           </button>
-        )}
+        </div>
+        <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+          <button className="btn btn-secondary btn-icon btn-sm" onClick={() => onAdd(node.id)} title="Add child">+</button>
+          {node.id !== 'root' && (
+            <button
+              className="btn btn-icon btn-sm"
+              onClick={() => onRemove(node.id)}
+              title="Remove"
+              style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
+            >
+              −
+            </button>
+          )}
+          {node.children && (
+            <button className="btn btn-success btn-sm" onClick={() => onNormalize(node.id)}>
+              Normalize
+            </button>
+          )}
+        </div>
       </div>
       {node.children && !isNormalized && (
-        <div style={{ color: 'red', marginTop: '5px' }}>
-          Warning: Child probabilities do not sum to {isAbsolute ? node.probability.toFixed(2) : '100'}%
+        <div style={{
+          color: '#dc2626',
+          fontSize: '13px',
+          marginTop: '4px',
+          marginBottom: '8px',
+          marginLeft: level > 0 ? '24px' : '0',
+          padding: '8px 12px',
+          background: '#fef2f2',
+          borderRadius: '4px',
+          border: '1px solid #fecaca'
+        }}>
+          Children don't sum to {isAbsolute ? node.probability.toFixed(1) : '100'}%
         </div>
       )}
       {node.children && node.expanded && (
-        <div>
+        <div style={{ marginTop: '4px' }}>
           {node.children.map((child) => (
             <ProbabilityNode
               key={child.id}

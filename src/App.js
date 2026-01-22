@@ -2,21 +2,25 @@ import React from 'react';
 import ProbabilityDistributionVisualizer from './components/ProbabilityDistributionVisualizer';
 import useFirebase from './hooks/useFirebase';
 import { VERSION } from './version';
+import './styles.css';
 
 function App() {
   const { user, signIn, signOut } = useFirebase();
 
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <header className="header">
+        <h1 className="header-title">ProbTree</h1>
         {user ? (
-          <button onClick={signOut}>Sign Out</button>
+          <button className="btn btn-secondary btn-sm" onClick={signOut}>Sign Out</button>
         ) : (
-          <button onClick={signIn}>Sign In</button>
+          <button className="btn btn-primary btn-sm" onClick={signIn}>Sign In with Google</button>
         )}
-      </div>
-      <ProbabilityDistributionVisualizer />
-      <footer style={{ textAlign: 'center', padding: '20px', color: '#999', fontSize: '12px' }}>
+      </header>
+      <main style={{ flex: 1 }}>
+        <ProbabilityDistributionVisualizer />
+      </main>
+      <footer className="footer">
         v{VERSION}
       </footer>
     </div>

@@ -76,11 +76,31 @@ export const toggleNode = (rootNode, nodeId) => {
 export const normalizeNode = (rootNode, nodeId, isAbsolute) => {
   const normalizeNodeRecursive = (node) => {
     if (node.id === nodeId && node.children) {
-      const sum = node.children.reduce((acc, child) => acc + child.probability, 0);
-      const normalizedChildren = node.children.map(child => ({
-        ...child,
-        probability: isAbsolute ? (child.probability / sum) * node.probability : (child.probability / sum) * 100
-      }));
+      const target = isAbsolute ? node.probability : 100;
+
+      // Separate locked and unlocked children
+      const lockedChildren = node.children.filter(child => child.locked);
+      const unlockedChildren = node.children.filter(child => !child.locked);
+
+      // Sum of locked probabilities
+      const lockedSum = lockedChildren.reduce((acc, child) => acc + child.probability, 0);
+
+      // Remaining probability for unlocked children
+      const remaining = Math.max(0, target - lockedSum);
+
+      // Sum of unlocked probabilities
+      const unlockedSum = unlockedChildren.reduce((acc, child) => acc + child.probability, 0);
+
+      const normalizedChildren = node.children.map(child => {
+        if (child.locked) {
+          // Keep locked children as-is
+          return child;
+        }
+        // Scale unlocked children to fill remaining space
+        const newProb = unlockedSum > 0 ? (child.probability / unlockedSum) * remaining : remaining / unlockedChildren.length;
+        return { ...child, probability: newProb };
+      });
+
       return { ...node, children: normalizedChildren };
     }
     if (node.children) {
@@ -99,16 +119,22 @@ export const toggleAbsolute = (rootNode, isAbsolute) => {
   const toggleAbsoluteRecursive = (node, parentProbability = 100) => {
     let newProbability;
     if (isAbsolute) {
-      newProbability = node.id === 'root' ? 100 : (node.probability / parentProbability) * 100;
-    } else {
+      // Switching TO absolute: convert relative -> absolute
+      // Child's relative % (out of 100) scaled by parent's absolute value
       newProbability = node.id === 'root' ? 100 : (node.probability / 100) * parentProbability;
+    } else {
+      // Switching TO relative: convert absolute -> relative
+      // Child's absolute value as a percentage of parent's absolute value
+      newProbability = node.id === 'root' ? 100 : (node.probability / parentProbability) * 100;
     }
 
     if (node.children) {
       return {
         ...node,
         probability: newProbability,
-        children: node.children.map(child => toggleAbsoluteRecursive(child, isAbsolute ? node.probability : newProbability))
+        // When going TO absolute: pass new absolute value so children can scale
+        // When going TO relative: pass old absolute value so children can calculate their %
+        children: node.children.map(child => toggleAbsoluteRecursive(child, isAbsolute ? newProbability : node.probability))
       };
     }
     return { ...node, probability: newProbability };

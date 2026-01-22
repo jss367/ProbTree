@@ -1,53 +1,194 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import html2canvas from 'html2canvas';
 
+const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
 
-const HierarchicalVisualization = ({ node, depth = 0, isAbsolute }) => {
-  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
-  const bgColor = colors[depth % colors.length];
-  const isRoot = node.id === 'root';
+// Flatten tree into levels for row-based display
+const flattenToLevels = (node, level = 0, parentWidth = 100, startX = 0, levels = []) => {
+  if (!levels[level]) levels[level] = [];
+
+  const item = {
+    ...node,
+    width: parentWidth,
+    startX: startX
+  };
+
+  if (node.id !== 'root') {
+    levels[level].push(item);
+  }
+
+  if (node.children) {
+    let childStartX = startX;
+    const childLevel = node.id === 'root' ? level : level + 1;
+    node.children.forEach(child => {
+      const childWidth = (child.probability / (node.id === 'root' ? 100 : node.probability)) * parentWidth;
+      flattenToLevels(child, childLevel, childWidth, childStartX, levels);
+      childStartX += childWidth;
+    });
+  }
+
+  return levels;
+};
+
+const HierarchicalVisualization = ({ node, isAbsolute }) => {
+  const [zoom, setZoom] = useState(0.6);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const contentRef = useRef(null);
+
+  const handleZoomIn = () => setZoom(z => Math.min(z + 0.1, 2));
+  const handleZoomOut = () => setZoom(z => Math.max(z - 0.1, 0.3));
+  const handleReset = () => { setZoom(0.6); setPan({ x: 0, y: 0 }); };
+
+  const handleMouseDown = useCallback((e) => {
+    if (e.button === 0) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  }, [pan]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (isPanning) {
+      setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
+    }
+  }, [isPanning, panStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const handleWheel = useCallback((e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.05 : 0.05;
+      setZoom(z => Math.min(Math.max(z + delta, 0.3), 2));
+    }
+  }, []);
+
+  const handleSave = async () => {
+    if (!contentRef.current) return;
+    try {
+      const canvas = await html2canvas(contentRef.current, {
+        backgroundColor: '#f9fafb',
+        scale: 2
+      });
+      const link = document.createElement('a');
+      link.download = `probtree-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      alert('Failed to save: ' + err.message);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!contentRef.current) return;
+    try {
+      const canvas = await html2canvas(contentRef.current, {
+        backgroundColor: '#f9fafb',
+        scale: 2
+      });
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          alert('Copied to clipboard!');
+        }
+      }, 'image/png');
+    } catch (err) {
+      alert('Failed to copy: ' + err.message);
+    }
+  };
+
+  if (!node.children || node.children.length === 0) {
+    return (
+      <div style={{ color: '#6b7280', padding: '20px', textAlign: 'center' }}>
+        Add some beliefs to see the visualization
+      </div>
+    );
+  }
+
+  const levels = flattenToLevels(node);
+  const totalWidth = 1200; // Base width in pixels
 
   return (
-    <div style={{ marginBottom: '10px', width: '100%' }}>
-      {!isRoot && (
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <button className="btn btn-secondary btn-sm" onClick={handleZoomOut}>−</button>
+        <span style={{ fontSize: '13px', color: '#6b7280', minWidth: '50px', textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+        <button className="btn btn-secondary btn-sm" onClick={handleZoomIn}>+</button>
+        <button className="btn btn-secondary btn-sm" onClick={handleReset}>Reset</button>
+        <div style={{ borderLeft: '1px solid #e5e7eb', height: '20px', margin: '0 8px' }} />
+        <button className="btn btn-secondary btn-sm" onClick={handleSave}>Save Image</button>
+        <button className="btn btn-secondary btn-sm" onClick={handleCopy}>Copy</button>
+        <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '8px' }}>Drag to pan • Ctrl+scroll to zoom</span>
+      </div>
+      <div
+        ref={containerRef}
+        style={{
+          overflow: 'hidden',
+          border: '1px solid #e5e7eb',
+          borderRadius: '6px',
+          background: '#f9fafb',
+          cursor: isPanning ? 'grabbing' : 'grab',
+          minHeight: '300px'
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
+      >
         <div
           style={{
-            backgroundColor: bgColor,
-            color: 'white',
-            padding: '10px',
-            borderRadius: '4px',
-            width: '100%',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: 'top left',
+            padding: '16px'
           }}
         >
-          <div style={{ fontWeight: 'bold' }}>{node.name}</div>
-          <div>{node.probability.toFixed(2)}%</div>
-        </div>
-      )}
-      {node.children && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          marginTop: isRoot ? '0' : '5px'
-        }}>
-          {node.children.map(child => (
-            <div key={child.id} style={{
-              flex: child.probability,
-              paddingRight: '5px',
-              boxSizing: 'border-box'
+          <div ref={contentRef} style={{ width: totalWidth }}>
+            {/* Title row */}
+            <div style={{
+              background: '#1f2937',
+              color: 'white',
+              padding: '16px 20px',
+              borderRadius: '8px',
+              marginBottom: '8px',
+              textAlign: 'center'
             }}>
-              <HierarchicalVisualization
-                node={child}
-                depth={depth + 1}
-                isAbsolute={isAbsolute}
-              />
+              <div style={{ fontSize: '18px', fontWeight: '600' }}>{node.name}</div>
             </div>
-          ))}
+
+            {/* Level rows */}
+            {levels.map((level, levelIndex) => (
+              <div key={levelIndex} style={{ display: 'flex', marginBottom: '8px', gap: '4px' }}>
+                {level.map((item, itemIndex) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      width: `${(item.width / 100) * totalWidth - 4}px`,
+                      backgroundColor: colors[levelIndex % colors.length],
+                      color: 'white',
+                      padding: '12px 16px',
+                      borderRadius: '6px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      flexShrink: 0
+                    }}
+                  >
+                    <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>{item.name}</div>
+                    <div style={{ fontSize: '13px', opacity: 0.9 }}>{item.probability.toFixed(1)}%</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
-
 
 export default HierarchicalVisualization;
