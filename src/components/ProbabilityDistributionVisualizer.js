@@ -3,7 +3,7 @@ import useFirebase from '../hooks/useFirebase';
 import { addChild, normalizeNode, removeNode, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import ProbabilityNode from './ProbabilityNode';
-import defaultDistribution from '../../samples/cat-staring-at-wall.json';
+import defaultDistribution from '../samples/cat-staring-at-wall.json';
 
 const ProbabilityDistributionVisualizer = () => {
   const fileInputRef = useRef(null);

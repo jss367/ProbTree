@@ -8,3 +8,8 @@ To start:
 To start development server:
 
 `npm start`
+
+
+To deploy:
+
+`npm run build && firebase deploy`
