@@ -3,32 +3,12 @@ import useFirebase from '../hooks/useFirebase';
 import { addChild, normalizeNode, removeNode, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import ProbabilityNode from './ProbabilityNode';
+import defaultDistribution from '../../samples/cat-staring-at-wall.json';
 
 const ProbabilityDistributionVisualizer = () => {
   const fileInputRef = useRef(null);
-  const [isAbsolute, setIsAbsolute] = useState(false);
-  const [rootNode, setRootNode] = useState({
-    id: 'root',
-    name: 'Beliefs on the causes of an airplane crash',
-    probability: 100,
-    expanded: true,
-    children: [
-      {
-        id: '1',
-        name: 'Plane malfunction',
-        probability: 25,
-        expanded: true,
-        children: [
-          { id: '1-1', name: 'Engine failure', probability: 10, expanded: false },
-          { id: '1-2', name: 'Structural issue', probability: 7.5, expanded: false },
-          { id: '1-3', name: 'Electrical system', probability: 7.5, expanded: false },
-        ]
-      },
-      { id: '2', name: 'Pilot error', probability: 25, expanded: false },
-      { id: '3', name: 'Terrorist attack', probability: 25, expanded: false },
-      { id: '4', name: '3rd party intervention', probability: 25, expanded: false },
-    ],
-  });
+  const [isAbsolute, setIsAbsolute] = useState(defaultDistribution.isAbsolute);
+  const [rootNode, setRootNode] = useState(defaultDistribution.data);
   const [savedDistributions, setSavedDistributions] = useState([]);
   const [distributionName, setDistributionName] = useState('');
   const { user, saveDistribution, loadDistributions, shareDistribution } = useFirebase();
