@@ -1,165 +1,153 @@
 {
-    "isAbsolute": true,
-    "data": {
-        "id": "root",
-        "name": "What is dark matter?",
-        "probability": 100,
+  "isAbsolute": true,
+  "data": {
+    "id": "root",
+    "name": "What is dark matter?",
+    "probability": 100,
+    "expanded": true,
+    "children": [
+      {
+        "id": "1",
+        "name": "Particle dark matter",
+        "probability": 55,
         "expanded": true,
         "children": [
-            {
-                "id": "1",
-                "name": "Particle dark matter",
-                "probability": 55,
-                "expanded": true,
-                "children": [
-                    {
-                        "id": "1-1",
-                        "name": "WIMPs (weakly interacting massive particles)",
-                        "probability": 10,
-                        "expanded": true,
-                        "children": [],
-                        "locked": true
-                    },
-                    {
-                        "id": "1-2",
-                        "name": "Axions / Axion-like particles (ALPs)",
-                        "probability": 28,
-                        "expanded": true,
-                        "children": [],
-                        "locked": true
-                    },
-                    {
-                        "id": "1-3",
-                        "name": "Sterile neutrinos",
-                        "probability": 10,
-                        "expanded": false
-                    },
-                    {
-                        "id": "1-4",
-                        "name": "Other exotic particles",
-                        "probability": 7,
-                        "expanded": true,
-                        "children": [
-                            {
-                                "id": "1-4-1",
-                                "name": "Fuzzy dark matter (ultralight)",
-                                "probability": 4,
-                                "expanded": false
-                            },
-                            {
-                                "id": "1-4-2",
-                                "name": "Self-interacting dark matter",
-                                "probability": 3,
-                                "expanded": false
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "id": "2",
-                "name": "Macroscopic objects",
-                "probability": 10,
-                "expanded": true,
-                "children": [
-                    {
-                        "id": "2-1",
-                        "name": "Primordial black holes",
-                        "probability": 7,
-                        "expanded": false
-                    },
-                    {
-                        "id": "2-2",
-                        "name": "MACHOs (massive compact halo objects)",
-                        "probability": 2,
-                        "expanded": false
-                    },
-                    {
-                        "id": "2-3",
-                        "name": "Strange quark nuggets",
-                        "probability": 1,
-                        "expanded": false
-                    }
-                ]
-            },
-            {
-                "id": "3",
-                "name": "Modified gravity (no dark matter)",
-                "probability": 15,
-                "expanded": true,
-                "children": [
-                    {
-                        "id": "3-1",
-                        "name": "MOND (modified Newtonian dynamics)",
-                        "probability": 6,
-                        "expanded": false
-                    },
-                    {
-                        "id": "3-2",
-                        "name": "Emergent gravity (Verlinde)",
-                        "probability": 4,
-                        "expanded": false
-                    },
-                    {
-                        "id": "3-3",
-                        "name": "TeVeS / relativistic MOND",
-                        "probability": 3,
-                        "expanded": false
-                    },
-                    {
-                        "id": "3-4",
-                        "name": "Other gravity modifications",
-                        "probability": 2,
-                        "expanded": false
-                    }
-                ]
-            },
-            {
-                "id": "4",
-                "name": "Extra dimensions",
-                "probability": 5,
-                "expanded": true,
-                "children": [
-                    {
-                        "id": "4-1",
-                        "name": "Kaluza-Klein particles",
-                        "probability": 3,
-                        "expanded": false
-                    },
-                    {
-                        "id": "4-2",
-                        "name": "Gravity leaking from other branes",
-                        "probability": 2,
-                        "expanded": false
-                    }
-                ]
-            },
-            {
-                "id": "5",
-                "name": "Mirror matter / dark sector",
-                "probability": 5,
-                "expanded": true,
-                "children": [
-                    {
-                        "id": "5-1",
-                        "name": "Mirror particles (parity symmetric)",
-                        "probability": 3,
-                        "expanded": false
-                    },
-                    {
-                        "id": "5-2",
-                        "name": "Complex dark sector with forces",
-                        "probability": 2,
-                        "expanded": false
-                    }
-                ]
-            },
-            {
-                "id": "6",
-                "name": "Something completely unknown",
-                "probability": 10,
+          {
+            "id": "1-2",
+            "name": "Axions / Axion-like particles (ALPs)",
+            "probability": 28,
+            "expanded": true,
+            "children": [],
+            "locked": true
+          },
+          {
+            "id": "1-1",
+            "name": "WIMPs (weakly interacting massive particles)",
+            "probability": 10,
+            "expanded": true,
+            "children": [],
+            "locked": true
+          },
+          {
+            "id": "1-3",
+            "name": "Sterile neutrinos",
+            "probability": 10,
+            "expanded": false
+          },
+          {
+            "id": "1-4",
+            "name": "Other exotic particles",
+            "probability": 7,
+            "expanded": true,
+            "children": [
+              {
+                "id": "1-4-1",
+                "name": "Fuzzy dark matter (ultralight)",
+                "probability": 4,
                 "expanded": false
-            }
+              },
+              {
+                "id": "1-4-2",
+                "name": "Self-interacting dark matter",
+                "probability": 3,
+                "expanded": false
+              }
+            ]
+          }
         ]
-    }
+      },
+      {
+        "id": "3",
+        "name": "Modified gravity (no dark matter)",
+        "probability": 15,
+        "expanded": true,
+        "children": [
+          {
+            "id": "3-1",
+            "name": "MOND (modified Newtonian dynamics)",
+            "probability": 9,
+            "expanded": false
+          },
+          {
+            "id": "3-2",
+            "name": "Emergent gravity (Verlinde)",
+            "probability": 6,
+            "expanded": false
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Macroscopic objects",
+        "probability": 10,
+        "expanded": true,
+        "children": [
+          {
+            "id": "2-1",
+            "name": "Primordial black holes",
+            "probability": 7,
+            "expanded": false
+          },
+          {
+            "id": "2-2",
+            "name": "MACHOs (massive compact halo objects)",
+            "probability": 2,
+            "expanded": false
+          },
+          {
+            "id": "2-3",
+            "name": "Something else",
+            "probability": 1,
+            "expanded": false
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "name": "Something completely unknown",
+        "probability": 10,
+        "expanded": false
+      },
+      {
+        "id": "4",
+        "name": "Extra dimensions",
+        "probability": 5,
+        "expanded": true,
+        "children": [
+          {
+            "id": "4-1",
+            "name": "Kaluza-Klein particles",
+            "probability": 3,
+            "expanded": false
+          },
+          {
+            "id": "4-2",
+            "name": "Gravity leaking from other branes",
+            "probability": 2,
+            "expanded": false
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "name": "Mirror matter / dark sector",
+        "probability": 5,
+        "expanded": true,
+        "children": [
+          {
+            "id": "5-1",
+            "name": "Mirror particles (parity symmetric)",
+            "probability": 3,
+            "expanded": false
+          },
+          {
+            "id": "5-2",
+            "name": "Complex dark sector with forces",
+            "probability": 2,
+            "expanded": false
+          }
+        ]
+      }
+    ]
+  }
 }

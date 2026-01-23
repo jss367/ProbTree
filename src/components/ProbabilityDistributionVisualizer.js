@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
-import { addChild, normalizeNode, removeNode, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
+import { addChild, normalizeNode, removeNode, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import ProbabilityNode from './ProbabilityNode';
 import defaultDistribution from '../samples/cat-staring-at-wall.json';
@@ -44,6 +44,10 @@ const ProbabilityDistributionVisualizer = () => {
 
   const handleNormalizeNode = (nodeId) => {
     setRootNode(prevRoot => normalizeNode(prevRoot, nodeId, isAbsolute));
+  };
+
+  const handleSortTree = () => {
+    setRootNode(prevRoot => sortTree(prevRoot));
   };
 
   const handleSetAbsolute = (newIsAbsolute) => {
@@ -177,9 +181,14 @@ const ProbabilityDistributionVisualizer = () => {
                 + Add Belief
               </button>
               {rootNode.children && rootNode.children.length > 0 && (
-                <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
-                  Normalize
-                </button>
+                <>
+                  <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
+                    Normalize
+                  </button>
+                  <button className="btn btn-secondary btn-sm" onClick={handleSortTree}>
+                    Sort
+                  </button>
+                </>
               )}
             </div>
           </div>

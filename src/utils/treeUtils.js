@@ -1,3 +1,16 @@
+// Sort all children recursively by probability (highest first)
+export const sortTree = (node) => {
+  if (!node.children || node.children.length === 0) {
+    return node;
+  }
+
+  const sortedChildren = [...node.children]
+    .sort((a, b) => b.probability - a.probability)
+    .map(sortTree);
+
+  return { ...node, children: sortedChildren };
+};
+
 export const updateNode = (rootNode, updatedNode) => {
   const updateNodeRecursive = (node) => {
     if (node.id === updatedNode.id) {
