@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import html2canvas from 'html2canvas';
+import { toPng, toBlob } from 'html-to-image';
 
 const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
 
@@ -111,13 +111,13 @@ const HierarchicalVisualization = ({ node, isAbsolute }) => {
   const handleSave = async () => {
     if (!contentRef.current) return;
     try {
-      const canvas = await html2canvas(contentRef.current, {
+      const dataUrl = await toPng(contentRef.current, {
         backgroundColor: '#f9fafb',
-        scale: 2
+        pixelRatio: 2
       });
       const link = document.createElement('a');
       link.download = `probtree-${new Date().toISOString().slice(0, 10)}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
     } catch (err) {
       alert('Failed to save: ' + err.message);
@@ -127,18 +127,16 @@ const HierarchicalVisualization = ({ node, isAbsolute }) => {
   const handleCopy = async () => {
     if (!contentRef.current) return;
     try {
-      const canvas = await html2canvas(contentRef.current, {
+      const blob = await toBlob(contentRef.current, {
         backgroundColor: '#f9fafb',
-        scale: 2
+        pixelRatio: 2
       });
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob })
-          ]);
-          alert('Copied to clipboard!');
-        }
-      }, 'image/png');
+      if (blob) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        alert('Copied to clipboard!');
+      }
     } catch (err) {
       alert('Failed to copy: ' + err.message);
     }
