@@ -2,8 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
 import { addChild, normalizeNode, removeNode, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
+import CollapsibleTreeVisualization from './CollapsibleTreeVisualization';
+import SunburstVisualization from './SunburstVisualization';
 import ProbabilityNode from './ProbabilityNode';
 import defaultDistribution from '../samples/cat-staring-at-wall.json';
+
+const VIZ_MODES = [
+  { id: 'bars', label: 'Bars' },
+  { id: 'tree', label: 'Tree' },
+  { id: 'sunburst', label: 'Sunburst' }
+];
 
 const ProbabilityDistributionVisualizer = () => {
   const fileInputRef = useRef(null);
@@ -11,6 +19,7 @@ const ProbabilityDistributionVisualizer = () => {
   const [rootNode, setRootNode] = useState(defaultDistribution.data);
   const [savedDistributions, setSavedDistributions] = useState([]);
   const [distributionName, setDistributionName] = useState('');
+  const [vizMode, setVizMode] = useState('bars');
   const { user, saveDistribution, loadDistributions, shareDistribution } = useFirebase();
 
   useEffect(() => {
@@ -215,11 +224,24 @@ const ProbabilityDistributionVisualizer = () => {
 
         {/* Visualization Section */}
         <div className="card">
-          <div className="card-header">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Visualization</h2>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {VIZ_MODES.map(mode => (
+                <button
+                  key={mode.id}
+                  className={`btn btn-sm ${vizMode === mode.id ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => setVizMode(mode.id)}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="card-body">
-            <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />
+            {vizMode === 'bars' && <HierarchicalVisualization node={rootNode} isAbsolute={isAbsolute} />}
+            {vizMode === 'tree' && <CollapsibleTreeVisualization node={rootNode} isAbsolute={isAbsolute} />}
+            {vizMode === 'sunburst' && <SunburstVisualization node={rootNode} isAbsolute={isAbsolute} />}
           </div>
         </div>
 
