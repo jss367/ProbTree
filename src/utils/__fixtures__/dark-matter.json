@@ -1,0 +1,151 @@
+{
+    "isAbsolute": true,
+    "data": {
+      "id": "root",
+      "name": "What is dark matter?",
+      "probability": 100,
+      "expanded": true,
+      "children": [
+        {
+          "id": "1",
+          "name": "Particle dark matter",
+          "probability": 55,
+          "expanded": true,
+          "children": [
+            {
+              "id": "1-2",
+              "name": "Axions / Axion-like particles (ALPs)",
+              "probability": 33,
+              "expanded": true,
+              "children": [],
+              "locked": true
+            },
+            {
+              "id": "1-4",
+              "name": "Some other exotic particle(s)",
+              "probability": 13,
+              "expanded": true,
+              "children": [],
+              "locked": true
+            },
+            {
+              "id": "1-3",
+              "name": "Sterile neutrinos",
+              "probability": 5,
+              "expanded": false,
+              "locked": true
+            },
+            {
+              "id": "1-1",
+              "name": "WIMPs (weakly interacting massive particles)",
+              "probability": 4,
+              "expanded": true,
+              "children": [],
+              "locked": true
+            }
+          ],
+          "locked": true
+        },
+        {
+          "id": "3",
+          "name": "Modified gravity (no dark matter)",
+          "probability": 15,
+          "expanded": true,
+          "children": [
+            {
+              "id": "3-1",
+              "name": "Modified Newtonian Dynamics (MOND)",
+              "probability": 9,
+              "expanded": false,
+              "locked": true
+            },
+            {
+              "id": "3-2",
+              "name": "Some other form (e.g. Verlinde's emergent gravity)",
+              "probability": 6,
+              "expanded": false,
+              "locked": true
+            }
+          ],
+          "locked": true
+        },
+        {
+          "id": "2",
+          "name": "Macroscopic objects",
+          "probability": 10,
+          "expanded": true,
+          "children": [
+            {
+              "id": "2-1",
+              "name": "Primordial black holes",
+              "probability": 5,
+              "expanded": false,
+              "locked": true
+            },
+            {
+              "id": "2-3",
+              "name": "Something else",
+              "probability": 3,
+              "expanded": false,
+              "locked": true
+            },
+            {
+              "id": "2-2",
+              "name": "MACHOs (massive compact halo objects)",
+              "probability": 2,
+              "expanded": false
+            }
+          ],
+          "locked": true
+        },
+        {
+          "id": "6",
+          "name": "Other non-particle theories ",
+          "probability": 8.45,
+          "expanded": false
+        },
+        {
+          "id": "1769630961234",
+          "name": "Nothing - Our model of the universe is fundamentally flawed",
+          "probability": 5,
+          "expanded": false,
+          "locked": true
+        },
+        {
+          "id": "4",
+          "name": "Multiple different non-MOND things",
+          "probability": 4.225,
+          "expanded": true,
+          "children": []
+        },
+        {
+          "id": "5",
+          "name": "Mirror matter / dark sector",
+          "probability": 4.225,
+          "expanded": true,
+          "children": [
+            {
+              "id": "5-1",
+              "name": "Mirror particles (parity symmetric)",
+              "probability": 2.535,
+              "expanded": false
+            },
+            {
+              "id": "5-2",
+              "name": "Complex dark sector with forces",
+              "probability": 1.69,
+              "expanded": true,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "1769630908546",
+          "name": "Nothing - We're misinterpreting data",
+          "probability": 0.1,
+          "expanded": false,
+          "locked": true
+        }
+      ]
+    }
+  }

@@ -16,10 +16,14 @@ const OverflowMenu = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  if (!React.Children.toArray(children).length) return null;
+
   return (
     <div ref={menuRef} style={{ position: 'relative' }}>
       <button
         className="btn btn-secondary btn-icon btn-sm"
+        aria-label="More node actions"
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         style={{ padding: '4px 8px' }}
       >
@@ -105,12 +109,8 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
 
     const newProb = parseFloat(newValue);
     if (!isNaN(newProb)) {
-      let clampedProb;
-      if (isAbsolute) {
-        clampedProb = Math.min(newProb, parentProbability);
-      } else {
-        clampedProb = Math.min(newProb, 100);
-      }
+      const maximum = isAbsolute ? parentProbability : 100;
+      const clampedProb = Math.max(0, Math.min(newProb, maximum));
       // Auto-lock when user manually changes probability
       onUpdate({ ...node, probability: clampedProb, locked: true });
     }
@@ -147,7 +147,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
             type="number"
             value={inputValue}
             onChange={handleProbabilityChange}
-            onBlur={() => setInputValue(Number.isInteger(displayProbability) ? displayProbability.toString() : displayProbability.toFixed(2).replace(/\.?0+$/, ''))}
+            onBlur={() => setInputValue(String(Number(displayProbability.toFixed(2))))}
             min="0"
             max={isAbsolute ? parentProbability : 100}
             step="any"
