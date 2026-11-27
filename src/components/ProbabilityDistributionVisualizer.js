@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
-import { addChild, normalizeNode, removeNode, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
+import { addChild, normalizeNode, removeNode, roundTree, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import CollapsibleTreeVisualization from './CollapsibleTreeVisualization';
 import SunburstVisualization from './SunburstVisualization';
@@ -53,6 +53,14 @@ const ProbabilityDistributionVisualizer = () => {
 
   const handleNormalizeNode = (nodeId) => {
     setRootNode(prevRoot => normalizeNode(prevRoot, nodeId, isAbsolute));
+  };
+
+  const handleRoundTree = () => {
+    try {
+      setRootNode(roundTree(rootNode, isAbsolute));
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const handleSortTree = () => {
@@ -193,6 +201,9 @@ const ProbabilityDistributionVisualizer = () => {
                 <>
                   <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
                     Normalize
+                  </button>
+                  <button className="btn btn-secondary btn-sm" title="Round unlocked probabilities to whole percentages and normalize totals" onClick={handleRoundTree}>
+                    Round
                   </button>
                   <button className="btn btn-secondary btn-sm" onClick={handleSortTree}>
                     Sort
