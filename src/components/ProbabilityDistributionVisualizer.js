@@ -198,7 +198,7 @@ const ProbabilityDistributionVisualizer = () => {
                   <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
                     Normalize
                   </button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => handleRoundNode(rootNode.id)}>
+                  <button className="btn btn-secondary btn-sm" title="Round unlocked probabilities to whole percentages and normalize totals" onClick={() => handleRoundNode(rootNode.id)}>
                     Round
                   </button>
                   <button className="btn btn-secondary btn-sm" onClick={handleSortTree}>

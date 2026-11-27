@@ -22,7 +22,7 @@ const OverflowMenu = ({ children }) => {
     <div ref={menuRef} style={{ position: 'relative' }}>
       <button
         className="btn btn-secondary btn-icon btn-sm"
-        aria-label="More node actions"
+        aria-label="Node actions"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         style={{ padding: '4px 8px' }}
@@ -147,7 +147,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
             type="number"
             value={inputValue}
             onChange={handleProbabilityChange}
-            onBlur={() => setInputValue(String(Number(displayProbability.toFixed(2))))}
+            onBlur={() => setInputValue(Number(displayProbability.toFixed(2)).toString())}
             min="0"
             max={isAbsolute ? parentProbability : 100}
             step="any"
@@ -172,18 +172,20 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         </div>
         <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
           <button className="btn btn-secondary btn-icon btn-sm" onClick={() => onAdd(node.id)} title="Add child">+</button>
-          <OverflowMenu>
-            {node.children && node.children.length > 0 && (
-              <MenuItem onClick={() => onNormalize(node.id)} variant="success">
-                Normalize children
-              </MenuItem>
-            )}
-            {node.id !== 'root' && (
-              <MenuItem onClick={() => onRemove(node.id)} variant="danger">
-                Delete
-              </MenuItem>
-            )}
-          </OverflowMenu>
+          {(node.id !== 'root' || node.children?.length > 0) && (
+            <OverflowMenu>
+              {node.children && node.children.length > 0 && (
+                <MenuItem onClick={() => onNormalize(node.id)} variant="success">
+                  Normalize children
+                </MenuItem>
+              )}
+              {node.id !== 'root' && (
+                <MenuItem onClick={() => onRemove(node.id)} variant="danger">
+                  Delete
+                </MenuItem>
+              )}
+            </OverflowMenu>
+          )}
         </div>
       </div>
       {node.children && node.children.length > 0 && !isNormalized && (

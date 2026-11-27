@@ -17,7 +17,7 @@ test('deletes a belief from its node actions', () => {
   render(<App />);
   const name = 'Normal cat behavior';
   const row = within(screen.getByDisplayValue(name).closest('.node-row'));
-  fireEvent.click(row.getByRole('button', { name: 'More node actions' }));
+  fireEvent.click(row.getByRole('button', { name: 'Node actions' }));
   fireEvent.click(row.getByRole('button', { name: 'Delete' }));
   expect(screen.queryByDisplayValue(name)).toBeNull();
 });
