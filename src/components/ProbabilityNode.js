@@ -1,6 +1,88 @@
+import React, { useEffect, useState, useRef } from 'react';
 
-import React, { useEffect, useState } from 'react';
+const OverflowMenu = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div ref={menuRef} style={{ position: 'relative' }}>
+      <button
+        className="btn btn-secondary btn-icon btn-sm"
+        aria-label="Node actions"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ padding: '4px 8px' }}
+      >
+        ⋯
+      </button>
+      {isOpen && (
+        <div style={{
+          position: 'absolute',
+          right: 0,
+          top: '100%',
+          marginTop: '4px',
+          background: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 100,
+          minWidth: '140px',
+          overflow: 'hidden'
+        }}>
+          {React.Children.map(children, child =>
+            child ? React.cloneElement(child, {
+              onClick: (e) => {
+                child.props.onClick?.(e);
+                setIsOpen(false);
+              }
+            }) : null
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MenuItem = ({ onClick, children, variant = 'default' }) => {
+  const styles = {
+    default: { color: '#374151' },
+    danger: { color: '#dc2626' },
+    success: { color: '#059669' }
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'block',
+        width: '100%',
+        padding: '8px 12px',
+        border: 'none',
+        background: 'none',
+        textAlign: 'left',
+        cursor: 'pointer',
+        fontSize: '14px',
+        ...styles[variant]
+      }}
+      onMouseEnter={(e) => e.target.style.background = '#f3f4f6'}
+      onMouseLeave={(e) => e.target.style.background = 'none'}
+    >
+      {children}
+    </button>
+  );
+};
 
 const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0, onNormalize, parentProbability, isAbsolute }) => {
   const [isNormalized, setIsNormalized] = useState(true);
@@ -67,7 +149,7 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
             type="number"
             value={inputValue}
             onChange={handleProbabilityChange}
-            onBlur={() => setInputValue(displayProbability.toFixed(2))}
+            onBlur={() => setInputValue(Number(displayProbability.toFixed(2)).toString())}
             min="0"
             max={isAbsolute ? parentProbability : 100}
             step="any"
@@ -92,20 +174,19 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
         </div>
         <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
           <button className="btn btn-secondary btn-icon btn-sm" onClick={() => onAdd(node.id)} title="Add child">+</button>
-          {node.id !== 'root' && (
-            <button
-              className="btn btn-icon btn-sm"
-              onClick={() => onRemove(node.id)}
-              title="Remove"
-              style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}
-            >
-              −
-            </button>
-          )}
-          {node.children && node.children.length > 0 && (
-            <button className="btn btn-success btn-sm" onClick={() => onNormalize(node.id)}>
-              Normalize
-            </button>
+          {(node.id !== 'root' || node.children?.length > 0) && (
+            <OverflowMenu>
+              {node.children && node.children.length > 0 && (
+                <MenuItem onClick={() => onNormalize(node.id)} variant="success">
+                  Normalize children
+                </MenuItem>
+              )}
+              {node.id !== 'root' && (
+                <MenuItem onClick={() => onRemove(node.id)} variant="danger">
+                  Delete
+                </MenuItem>
+              )}
+            </OverflowMenu>
           )}
         </div>
       </div>

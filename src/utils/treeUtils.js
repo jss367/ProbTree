@@ -114,7 +114,8 @@ export const normalizeNode = (rootNode, nodeId, isAbsolute) => {
       } else {
         // Scale unlocked children to fill remaining space
         const newProb = unlockedSum > 0 ? (child.probability / unlockedSum) * remaining : remaining / unlockedChildren.length;
-        newChild = { ...child, probability: newProb };
+        // Round to avoid floating point precision issues
+        newChild = { ...child, probability: Math.round(newProb * 1000000) / 1000000 };
       }
       // Recursively normalize this child's subtree
       return normalizeSubtree(newChild);
@@ -138,6 +139,40 @@ export const normalizeNode = (rootNode, nodeId, isAbsolute) => {
   };
 
   return findAndNormalize(rootNode);
+};
+
+// Allocate whole percentages by largest remainder. Locked children keep their values.
+export const roundTree = (node, isAbsolute) => {
+  if (!node.children?.length) return node;
+
+  if (node.children.some(child => !Number.isFinite(child.probability) || child.probability < 0 || child.probability > 100)) {
+    throw new Error(`Children of "${node.name}" must have probabilities between 0 and 100 before rounding.`);
+  }
+  const unlocked = node.children.filter(child => !child.locked);
+  const lockedTotal = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
+  const remaining = (isAbsolute ? node.probability : 100) - lockedTotal;
+  const budget = Math.round(remaining);
+  if (budget < 0 || Math.abs(budget - remaining) > 1e-8 || (!unlocked.length && budget !== 0)) {
+    throw new Error(`Cannot round children of "${node.name}" to whole percentages while preserving locked values.`);
+  }
+
+  const weightSum = unlocked.reduce((sum, child) => sum + child.probability, 0);
+  const shares = unlocked.map(child => {
+    const quota = weightSum ? budget * child.probability / weightSum : budget / unlocked.length;
+    const whole = Math.floor(quota);
+    return { child, whole, remainder: quota - whole };
+  });
+  const extra = budget - shares.reduce((sum, share) => sum + share.whole, 0);
+  shares.sort((a, b) => b.remainder - a.remainder);
+  const rounded = new Map(shares.map(({ child, whole }, index) => [
+    child, whole + (index < extra ? 1 : 0)
+  ]));
+
+  const children = node.children.map(child => roundTree(
+    child.locked ? child : { ...child, probability: rounded.get(child) },
+    isAbsolute
+  ));
+  return { ...node, children };
 };
 
 export const toggleAbsolute = (rootNode, isAbsolute) => {
