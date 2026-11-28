@@ -51,13 +51,16 @@ const ProbabilityDistributionVisualizer = () => {
     setRootNode(prevRoot => toggleNode(prevRoot, nodeId));
   };
 
-  const handleNormalizeNode = (nodeId) => {
-    setRootNode(prevRoot => normalizeNode(prevRoot, nodeId, isAbsolute));
+  const applyRounding = (nodeId, operation) => {
+    try {
+      setRootNode(operation(rootNode, nodeId, isAbsolute));
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
-  const handleRoundNode = (nodeId) => {
-    setRootNode(prevRoot => roundNode(prevRoot, nodeId, isAbsolute, 0));
-  };
+  const handleNormalizeNode = nodeId => applyRounding(nodeId, normalizeNode);
+  const handleRoundNode = nodeId => applyRounding(nodeId, roundNode);
 
   const handleSortTree = () => {
     setRootNode(prevRoot => sortTree(prevRoot));

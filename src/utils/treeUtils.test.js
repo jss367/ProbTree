@@ -20,6 +20,13 @@ test('rounds the revised sample recursively and preserves locks and sibling orde
   expect(roundNode(rounded, 'root', true)).toEqual(rounded);
 });
 
+test.each([-10, 101, Infinity, NaN, '20', null])('rejects invalid probability %p before allocating shares', value => {
+  const root = tree([value, 20]);
+  expect(() => roundNode(root, 'root', true)).toThrow(/between 0 and 100/);
+  expect(() => normalizeNode(root, 'root', false)).toThrow(/between 0 and 100/);
+  expect(probabilities(root)).toEqual([value, 20]);
+});
+
 test('normalizes zero weights and breaks ties in sibling order', () => {
   expect(probabilities(roundNode(tree([0, 0, 0]), 'root', false))).toEqual([34, 33, 33]);
   expect(probabilities(normalizeNode(tree([0, 0, 0]), 'root', false))).toEqual([33.333334, 33.333333, 33.333333]);

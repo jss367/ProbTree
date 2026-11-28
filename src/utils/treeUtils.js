@@ -86,11 +86,18 @@ export const toggleNode = (rootNode, nodeId) => {
   return toggleNodeRecursive(rootNode);
 };
 
+const validateChildProbabilities = node => {
+  if (node.children.some(child => !Number.isFinite(child.probability) || child.probability < 0 || child.probability > 100)) {
+    throw new Error(`Children of "${node.name}" must have probabilities between 0 and 100 before rounding.`);
+  }
+};
+
 // Allocate the available probability proportionally, using largest remainders
 // to keep sibling totals consistent after rounding.
 const roundSubtree = (node, isAbsolute, scale) => {
   if (!node.children?.length) return node;
 
+  validateChildProbabilities(node);
   const target = isAbsolute ? node.probability : 100;
   const unlocked = node.children.filter(child => !child.locked);
   const lockedSum = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
@@ -133,9 +140,7 @@ export const normalizeNode = (node, nodeId, isAbsolute) => roundNode(node, nodeI
 export const roundTree = (node, isAbsolute) => {
   if (!node.children?.length) return node;
 
-  if (node.children.some(child => !Number.isFinite(child.probability) || child.probability < 0 || child.probability > 100)) {
-    throw new Error(`Children of "${node.name}" must have probabilities between 0 and 100 before rounding.`);
-  }
+  validateChildProbabilities(node);
   const unlocked = node.children.filter(child => !child.locked);
   const lockedTotal = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
   const remaining = (isAbsolute ? node.probability : 100) - lockedTotal;
