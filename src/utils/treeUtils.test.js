@@ -27,6 +27,14 @@ test.each([-10, 101, Infinity, NaN, '20', null])('rejects invalid probability %p
   expect(probabilities(root)).toEqual([value, 20]);
 });
 
+test.each([-10, null])('rejects an invalid selected probability %p without changing descendants', value => {
+  const selected = { ...tree([5, 15]), id: 'selected', probability: value };
+  const root = { ...tree([]), children: [selected] };
+  expect(() => roundNode(selected, selected.id, true)).toThrow(/between 0 and 100/);
+  expect(() => normalizeNode(root, selected.id, true)).toThrow(/between 0 and 100/);
+  expect(probabilities(selected)).toEqual([5, 15]);
+});
+
 test('normalizes zero weights and breaks ties in sibling order', () => {
   expect(probabilities(roundNode(tree([0, 0, 0]), 'root', false))).toEqual([34, 33, 33]);
   expect(probabilities(normalizeNode(tree([0, 0, 0]), 'root', false))).toEqual([33.333334, 33.333333, 33.333333]);

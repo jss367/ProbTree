@@ -86,9 +86,9 @@ export const toggleNode = (rootNode, nodeId) => {
   return toggleNodeRecursive(rootNode);
 };
 
-const validateChildProbabilities = node => {
-  if (node.children.some(child => !Number.isFinite(child.probability) || child.probability < 0 || child.probability > 100)) {
-    throw new Error(`Children of "${node.name}" must have probabilities between 0 and 100 before rounding.`);
+const validateProbability = ({ name, probability }) => {
+  if (!Number.isFinite(probability) || probability < 0 || probability > 100) {
+    throw new Error(`"${name}" must have a probability between 0 and 100 before rounding.`);
   }
 };
 
@@ -97,7 +97,8 @@ const validateChildProbabilities = node => {
 const roundSubtree = (node, isAbsolute, scale) => {
   if (!node.children?.length) return node;
 
-  validateChildProbabilities(node);
+  validateProbability(node);
+  node.children.forEach(validateProbability);
   const target = isAbsolute ? node.probability : 100;
   const unlocked = node.children.filter(child => !child.locked);
   const lockedSum = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
@@ -140,7 +141,8 @@ export const normalizeNode = (node, nodeId, isAbsolute) => roundNode(node, nodeI
 export const roundTree = (node, isAbsolute) => {
   if (!node.children?.length) return node;
 
-  validateChildProbabilities(node);
+  validateProbability(node);
+  node.children.forEach(validateProbability);
   const unlocked = node.children.filter(child => !child.locked);
   const lockedTotal = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
   const remaining = (isAbsolute ? node.probability : 100) - lockedTotal;
