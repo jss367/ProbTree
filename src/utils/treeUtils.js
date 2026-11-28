@@ -86,68 +86,63 @@ export const toggleNode = (rootNode, nodeId) => {
   return toggleNodeRecursive(rootNode);
 };
 
-export const normalizeNode = (rootNode, nodeId, isAbsolute) => {
-  // Helper to normalize a node and all its descendants
-  const normalizeSubtree = (node) => {
-    if (!node.children) return node;
-
-    const target = isAbsolute ? node.probability : 100;
-
-    // Separate locked and unlocked children
-    const lockedChildren = node.children.filter(child => child.locked);
-    const unlockedChildren = node.children.filter(child => !child.locked);
-
-    // Sum of locked probabilities
-    const lockedSum = lockedChildren.reduce((acc, child) => acc + child.probability, 0);
-
-    // Remaining probability for unlocked children
-    const remaining = Math.max(0, target - lockedSum);
-
-    // Sum of unlocked probabilities
-    const unlockedSum = unlockedChildren.reduce((acc, child) => acc + child.probability, 0);
-
-    const normalizedChildren = node.children.map(child => {
-      let newChild;
-      if (child.locked) {
-        // Keep locked children's probability as-is
-        newChild = child;
-      } else {
-        // Scale unlocked children to fill remaining space
-        const newProb = unlockedSum > 0 ? (child.probability / unlockedSum) * remaining : remaining / unlockedChildren.length;
-        // Round to avoid floating point precision issues
-        newChild = { ...child, probability: Math.round(newProb * 1000000) / 1000000 };
-      }
-      // Recursively normalize this child's subtree
-      return normalizeSubtree(newChild);
-    });
-
-    return { ...node, children: normalizedChildren };
-  };
-
-  // Find the target node and normalize from there
-  const findAndNormalize = (node) => {
-    if (node.id === nodeId) {
-      return normalizeSubtree(node);
-    }
-    if (node.children) {
-      return {
-        ...node,
-        children: node.children.map(findAndNormalize),
-      };
-    }
-    return node;
-  };
-
-  return findAndNormalize(rootNode);
+const validateProbability = ({ name, probability }) => {
+  if (!Number.isFinite(probability) || probability < 0 || probability > 100) {
+    throw new Error(`"${name}" must have a probability between 0 and 100 before rounding.`);
+  }
 };
 
-// Allocate whole percentages by largest remainder. Locked children keep their values.
+// Allocate the available probability proportionally, using largest remainders
+// to keep sibling totals consistent after rounding.
+const roundSubtree = (node, isAbsolute, scale) => {
+  if (!node.children?.length) return node;
+
+  validateProbability(node);
+  node.children.forEach(validateProbability);
+  const target = isAbsolute ? node.probability : 100;
+  const unlocked = node.children.filter(child => !child.locked);
+  const lockedSum = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
+  const available = Math.max(0, target - lockedSum) * scale;
+  const totalWeight = unlocked.reduce((sum, child) => sum + child.probability, 0);
+  const shares = unlocked.map(child => {
+    const weight = totalWeight > 0 ? child.probability / totalWeight : 1 / unlocked.length;
+    const quota = weight * available;
+    return { child, units: Math.floor(quota), remainder: quota % 1 };
+  });
+  shares.sort((a, b) => b.remainder - a.remainder);
+
+  // A fractional locked value can leave a fraction of a unit to allocate.
+  let remaining = available - shares.reduce((sum, share) => sum + share.units, 0);
+  const probabilities = new Map();
+  for (const { child, units } of shares) {
+    const extra = Math.min(1, Math.max(0, remaining));
+    probabilities.set(child, Number(((units + extra) / scale).toFixed(12)));
+    remaining -= extra;
+  }
+
+  return {
+    ...node,
+    children: node.children.map(child => {
+      const updated = child.locked ? child : { ...child, probability: probabilities.get(child) };
+      return roundSubtree(updated, isAbsolute, scale);
+    })
+  };
+};
+
+export const roundNode = (node, nodeId, isAbsolute, decimals = 0) => {
+  if (node.id === nodeId) return roundSubtree(node, isAbsolute, 10 ** decimals);
+  if (!node.children?.length) return node;
+  return { ...node, children: node.children.map(child => roundNode(child, nodeId, isAbsolute, decimals)) };
+};
+
+export const normalizeNode = (node, nodeId, isAbsolute) => roundNode(node, nodeId, isAbsolute, 6);
+
+// Strict variant: allocate whole percentages by largest remainder. Locked children keep their values.
 export const roundTree = (node, isAbsolute) => {
   if (!node.children?.length) return node;
 
-  if (node.children.some(child => !Number.isFinite(child.probability) || child.probability < 0 || child.probability > 100)) {
-    throw new Error(`Children of "${node.name}" must have probabilities between 0 and 100 before rounding.`);
-  }
+  validateProbability(node);
+  node.children.forEach(validateProbability);
   const unlocked = node.children.filter(child => !child.locked);
   const lockedTotal = node.children.reduce((sum, child) => sum + (child.locked ? child.probability : 0), 0);
   const remaining = (isAbsolute ? node.probability : 100) - lockedTotal;
@@ -185,7 +180,7 @@ export const toggleAbsolute = (rootNode, isAbsolute) => {
     } else {
       // Switching TO relative: convert absolute -> relative
       // Child's absolute value as a percentage of parent's absolute value
-      newProbability = node.id === 'root' ? 100 : (node.probability / parentProbability) * 100;
+      newProbability = node.id === 'root' ? 100 : (parentProbability > 0 ? (node.probability / parentProbability) * 100 : 0);
     }
 
     if (node.children) {

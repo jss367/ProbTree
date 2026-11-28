@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useFirebase from '../hooks/useFirebase';
-import { addChild, normalizeNode, removeNode, roundTree, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
+import { addChild, normalizeNode, removeNode, roundNode, sortTree, toggleAbsolute, toggleNode, updateNode } from '../utils/treeUtils';
 import HierarchicalVisualization from './HierarchicalVisualization';
 import CollapsibleTreeVisualization from './CollapsibleTreeVisualization';
 import SunburstVisualization from './SunburstVisualization';
@@ -51,17 +51,16 @@ const ProbabilityDistributionVisualizer = () => {
     setRootNode(prevRoot => toggleNode(prevRoot, nodeId));
   };
 
-  const handleNormalizeNode = (nodeId) => {
-    setRootNode(prevRoot => normalizeNode(prevRoot, nodeId, isAbsolute));
-  };
-
-  const handleRoundTree = () => {
+  const applyRounding = (nodeId, operation) => {
     try {
-      setRootNode(roundTree(rootNode, isAbsolute));
+      setRootNode(operation(rootNode, nodeId, isAbsolute));
     } catch (error) {
       alert(error.message);
     }
   };
+
+  const handleNormalizeNode = nodeId => applyRounding(nodeId, normalizeNode);
+  const handleRoundNode = nodeId => applyRounding(nodeId, roundNode);
 
   const handleSortTree = () => {
     setRootNode(prevRoot => sortTree(prevRoot));
@@ -202,7 +201,7 @@ const ProbabilityDistributionVisualizer = () => {
                   <button className="btn btn-success btn-sm" onClick={() => handleNormalizeNode(rootNode.id)}>
                     Normalize
                   </button>
-                  <button className="btn btn-secondary btn-sm" title="Round unlocked probabilities to whole percentages and normalize totals" onClick={handleRoundTree}>
+                  <button className="btn btn-secondary btn-sm" title="Round unlocked probabilities to whole percentages and normalize totals" onClick={() => handleRoundNode(rootNode.id)}>
                     Round
                   </button>
                   <button className="btn btn-secondary btn-sm" onClick={handleSortTree}>

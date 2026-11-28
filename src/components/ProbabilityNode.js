@@ -16,6 +16,8 @@ const OverflowMenu = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
+  if (!React.Children.toArray(children).length) return null;
+
   return (
     <div ref={menuRef} style={{ position: 'relative' }}>
       <button
@@ -107,12 +109,8 @@ const ProbabilityNode = ({ node, onUpdate, onAdd, onRemove, onToggle, level = 0,
 
     const newProb = parseFloat(newValue);
     if (!isNaN(newProb)) {
-      let clampedProb;
-      if (isAbsolute) {
-        clampedProb = Math.min(newProb, parentProbability);
-      } else {
-        clampedProb = Math.min(newProb, 100);
-      }
+      const maximum = isAbsolute ? parentProbability : 100;
+      const clampedProb = Math.max(0, Math.min(newProb, maximum));
       // Auto-lock when user manually changes probability
       onUpdate({ ...node, probability: clampedProb, locked: true });
     }

@@ -1,22 +1,23 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 
 jest.mock('./hooks/useFirebase', () => () => ({ user: null }));
-jest.mock('./samples/cat-staring-at-wall.json', () => ({
-  isAbsolute: true,
-  data: {
-    id: 'root', name: 'Forecast', probability: 100,
-    children: [
-      { id: 'a', name: 'First outcome', probability: 75.7 },
-      { id: 'b', name: 'Second outcome', probability: 24.3 }
-    ]
-  }
-}));
 
-test('rounds the probabilities displayed in the editor', () => {
+test('rounds edited probabilities using the editor button', () => {
   render(<App />);
-  const percentages = () => screen.getAllByRole('spinbutton').map(input => input.valueAsNumber);
-  expect(percentages()).toEqual([75.7, 24.3]);
+  const inputFor = name => within(screen.getByDisplayValue(name).closest('.node-row')).getByRole('spinbutton');
+  const edited = inputFor('Detecting something real');
+  fireEvent.change(edited, { target: { value: '50.1' } });
   fireEvent.click(screen.getByRole('button', { name: 'Round' }));
-  expect(percentages()).toEqual([76, 24]);
+  expect(edited).toHaveValue(50.1);
+  expect(inputFor('Normal cat behavior')).toHaveValue(39);
+});
+
+test('deletes a belief from its node actions', () => {
+  render(<App />);
+  const name = 'Normal cat behavior';
+  const row = within(screen.getByDisplayValue(name).closest('.node-row'));
+  fireEvent.click(row.getByRole('button', { name: 'Node actions' }));
+  fireEvent.click(row.getByRole('button', { name: 'Delete' }));
+  expect(screen.queryByDisplayValue(name)).toBeNull();
 });
